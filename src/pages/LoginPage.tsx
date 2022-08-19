@@ -1,45 +1,67 @@
 import React, {useState} from 'react';
-import {Image, Text, TextInput, View, StyleSheet, Dimensions, Pressable} from 'react-native';
-import globals from "../layout/globals";
-const {width} = Dimensions.get('screen');
+import {StyleSheet} from 'react-native';
+import {
+    Box,
+    Button,
+    Center,
+    Input,
+    VStack, FormControl, Heading, Image, Pressable
+} from "native-base";
+import {useDispatch} from "react-redux";
+import {loginUser} from "../redux/data/user";
 
 const LoginPage = () => {
-    const [username, setUsername] = useState('');
+    const dispatch = useDispatch()
 
-    return (
-        <View>
-            <Image source={require('../assets/lottie/plane.gif')} style={styles.lottie}></Image>
-            <View style={[globals.centerChilds, styles.header]}>
-                <View style={globals.container}>
-                    <Text style={globals.headlineText}>Anmelden</Text>
-                </View>
-            </View>
-            <View style={[globals.centerChilds, globals.spaceTop]}>
-                <View style={globals.container}>
-                    <Text style={globals.text}>Bitte geben Sie Ihre Benutzerdaten ein</Text>
-                    <View style={globals.form}>
-                        <TextInput placeholder={'Benutzername'} style={globals.input}></TextInput>
-                        <TextInput placeholder={'Passwort'} secureTextEntry={true} style={globals.input}/>
-                        <Pressable style={globals.button}>
-                            <Text style={globals.buttonText}>Anmelden</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </View>
-        </View>
-    );
-}
-const styles = StyleSheet.create({
-    lottie: {
-        width: width,
-        height: width
-    },
-    header:{
-        marginTop: -50,
-        backgroundColor: '#fff',
-        borderTopRightRadius: 50,
-        borderTopLeftRadius: 50,
-        paddingTop: 15
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleUsernameChange = (event: any) => {
+        setUsername(event.target.value);
+    }
+
+    const handlePasswordChange = (event: any) => {
+        setPassword(event.target.value);
+    }
+
+    const submitForm = () => {
+        console.log(username, password); //todo: Debug entfernen
+        dispatch(loginUser(username, password));
+    }
+
+    return <Center w="100%">
+        <Box safeArea p="2" py="8" w="90%" maxW="290">
+            <Image source={require('../assets/caritas.gif')} alt={'Logo'} style={style.image}></Image>
+
+            <Heading size="md" fontWeight="600" color="coolGray.800" _dark={{
+                color: "black"
+            }}>
+                Anmelden um fortzufahren
+            </Heading>
+
+            <VStack space={3} mt="1">
+                <FormControl>
+                    <FormControl.Label>E-Mail Adresse</FormControl.Label>
+                    <Input value={username} onChange={handleUsernameChange}/>
+                </FormControl>
+                <FormControl>
+                    <FormControl.Label>Passwort</FormControl.Label>
+                    <Input type="password" value={password} onChange={handlePasswordChange}/>
+                </FormControl>
+                <Button mt="2" colorScheme="primary" onPress={submitForm}>
+                    Anmelden
+                </Button>
+            </VStack>
+        </Box>
+    </Center>;
+};
+
+
+const style = StyleSheet.create({
+    image: {
+        width: '100%',
+        height: '100%',
+        marginBottom: 20
     }
 });
 

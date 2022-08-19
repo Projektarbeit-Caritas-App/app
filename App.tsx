@@ -1,10 +1,22 @@
-import { View } from 'react-native';
-import BasicLayout from "./src/layout/BasicLayout";
+import Navigation from "./src/layout/Navigation";
+import {Provider} from 'react-redux';
+import {extendTheme, NativeBaseProvider, theme} from 'native-base';
+import store from "./src/redux/store";
 
-export default function App() {
-  return (
-    <View >
-      <BasicLayout/>
-    </View>
-  );
+const style = extendTheme({
+    colors: {
+        primary: theme.colors.rose,
+    },
+});
+
+const App = () => {
+    return (
+        <NativeBaseProvider theme={style}>
+            <Provider store={store}>
+                <Navigation/>
+            </Provider>
+        </NativeBaseProvider>
+    );
 }
+
+export default App;
