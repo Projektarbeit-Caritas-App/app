@@ -26,7 +26,7 @@ export const initialUserData: User = {
 
 export const initialUserState: UserState = {
     user: initialUserData,
-    loggedIn: false,
+    token: '',
     loading: false,
     error: false
 }
@@ -63,7 +63,7 @@ export type User = {
 
 export type UserState = {
     user: User,
-    loggedIn: boolean,
+    token: string,
     loading: boolean,
     error: boolean
 }

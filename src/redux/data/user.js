@@ -1,46 +1,30 @@
 import {initialUserData, initialUserState} from "./userMock";
 import axios from "axios";
-import {baseUrl} from "../config";
+import {BASE_URL, POST_LOGIN} from "./api";
 
-export function loginUser(email, password)
-{
+export function loginUser(email, password) {
     return (dispatch, getState) => {
-        /*fetch(`${baseUrl}/${number}`)
-            .then(res => res.json())
-            .then(res => {
-                let tempUserData = initialUserData;
-                tempUserData.email = email;
-                dispatch({
-                    type: "SET_USER_DATA",
-                    payload: tempUserData
-                })
-            })*/
+        axios.defaults.withCredentials = true;
 
-        axios({
-            method: 'get',
-            url: `${baseUrl}/api/handshake`,
-        }).then((response) => {
-            console.log("axios:");
+        axios.post(POST_LOGIN,
+            {
+                email: email,
+                password: password,
+                device_name: 'mobile'
+            }
+        ).then((response) => {
+            console.log("postAxios:");
             console.log(response);
-            axios.defaults.withCredentials = true;
-            axios.post(`${baseUrl}/api/auth/login`,
-                {
-                    email: email,
-                    password: password
-                }
-            ).then((response) => {
-                console.log("postAxios:");
-                console.log(response);
 
-            });
+            let tempUserData = initialUserData;
+            tempUserData.email = email;
+            console.log(response.data.token); //todo: Debug entfernen
+            dispatch({
+                type: "SET_USER_DATA",
+                payload: tempUserData,
+                token: response.data.token
+            })
         });
-
-        let tempUserData = initialUserData;
-        tempUserData.email = email;
-        dispatch({
-            type: "SET_USER_DATA",
-            payload: tempUserData
-        })
     }
 }
 
@@ -54,17 +38,19 @@ export default function userReducer(userState = initialUserState, action) {
     switch (action.type) {
         case "SET_USER_DATA": {
             return {
-                userState,
-                loggedIn: true,
+                ...userState,
+                token: action.token,
                 user: action.payload
             };
         }
         case "CLEAR_USER_DATA": {
             return {
-                userState,
-                user: action.payload
+                ...userState,
+                token: '',
+                user: null
             };
         }
-        default: return userState
+        default:
+            return userState
     }
 }
