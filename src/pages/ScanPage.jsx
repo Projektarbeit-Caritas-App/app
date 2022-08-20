@@ -1,16 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Keyboard, Pressable, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View} from 'react-native';
-import {Box, Center, KeyboardAvoidingView, VStack} from "native-base";
+import {Alert, Box, Center, KeyboardAvoidingView, VStack} from "native-base";
 import {BarCodeScanner} from 'expo-barcode-scanner';
 import Icon from "react-native-vector-icons/FontAwesome";
 import {getCardByID} from "../redux/data/api";
 import {useSelector} from "react-redux";
+import {useNavigation} from "@react-navigation/native";
 
 const ScanPage = () => {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
-    const [userid, setUserid] = useState('49394739894111');
+    const [userid, setUserid] = useState('50080528753334');
     const state = useSelector((state) => state);
+    const navigation = useNavigation();
 
     useEffect(() => {
         (async () => {
@@ -23,17 +25,19 @@ const ScanPage = () => {
         if (userid !== undefined && userid.length === 14) {
             handleQrEntered();
         }
-    },[userid])
+    }, [userid])
 
     const handleQrEntered = () => {
         console.log('userid', userid); //todo: Debug entfernen
         if (userid !== undefined && userid.length === 14) {
             const config = {
-                headers: { Authorization: `Bearer ${state.userReducer.token}` }
+                headers: {Authorization: `Bearer ${state.userReducer.token}`}
             };
 
             getCardByID(parseInt(userid), config).then(res => {
-                console.log('res', res); //todo: Debug entfernen
+                navigation.navigate('CardPage', { data: res.data })
+            }).catch(() => {
+                alert("Der eingegebene oder gescannte QR Code konnte keinem Benutzer zugeordnet werden. Bitte überprüfen Sie Ihre Eingabe.")
             })
         } else {
             alert("Fehler beim Lesen des QR Codes. Bitte versuchen Sie es erneut.")
@@ -44,13 +48,6 @@ const ScanPage = () => {
         setScanned(true);
         setUserid(data);
     };
-    if (hasPermission === null) {
-        return <Text>Bitte geben Sie der App Zugriff auf die Kamera. Diese wird ausschließlich benutzt, um QR Codes zu
-            erkennen.</Text>;
-    }
-    if (hasPermission === false) {
-        return <Text>Kein Zugriff auf die Kamera. Bitte erlauben Sie diesen in den Systemeinstellungen.</Text>;
-    }
 
     const handleUserIdChange = (e) => {
         setUserid(e.target.value);
@@ -58,34 +55,43 @@ const ScanPage = () => {
 
     return (
         <KeyboardAvoidingView behavior="padding" style={style.container}>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{justifyContent: 'flex-start', flex: 1, backgroundColor: '#fff'}}>
-                    <Center w="100%">
-                        <Box safeArea px="2" py={0} w="90%" maxW="500">
-                            <VStack space={3} mt="1">
-                                <View style={style.codeScanner}>
-                                    <BarCodeScanner
-                                        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                                        style={StyleSheet.absoluteFillObject}
-                                    />
-                                    {scanned &&
-                                        <Button title="Nochmal scannen" onPress={() => setScanned(false)}></Button>}
-                                </View>
-                            </VStack>
-                            <VStack space={3} mt={1}>
-                                <View style={style.innerInput}>
-                                    <TextInput placeholder={"Nummer eingeben..."} value={userid}
-                                               onChange={handleUserIdChange} style={style.innerInputInput}/>
-                                    <Pressable colorScheme="primary" style={style.innerInputIcon}
-                                               onPress={handleQrEntered}>
-                                        <Icon name={"play"}/>
-                                    </Pressable>
-                                </View>
-                            </VStack>
-                        </Box>
-                    </Center>
-                </View>
-            </TouchableWithoutFeedback>
+            <View style={{justifyContent: 'flex-start', flex: 1, backgroundColor: '#fff'}}>
+                <Center w="100%">
+                    <Box safeArea px="2" py={0} w="90%" maxW="500">
+                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                            {(hasPermission === false) ? (
+                                <VStack space={3} mt={3}>
+                                    <Alert w="100%" colorScheme={'warning'} status={'warning'}>
+                                        <Text>Kein Zugriff auf die Kamera. Bitte erlauben Sie diesen in den
+                                            Systemeinstellungen um Zugriff auf den QR-Code Scanner zu erhalten.</Text>
+                                    </Alert>
+                                </VStack>
+                            ) : (
+                                <VStack space={3} mt="1">
+                                    <View style={style.codeScanner}>
+                                        <BarCodeScanner
+                                            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                                            style={StyleSheet.absoluteFillObject}
+                                        />
+                                        {scanned &&
+                                            <Button title="Nochmal scannen" onPress={() => setScanned(false)}></Button>}
+                                    </View>
+                                </VStack>
+                            )}
+                        </TouchableWithoutFeedback>
+                        <VStack space={3} mt={1}>
+                            <View style={style.innerInput}>
+                                <TextInput placeholder={"Nummer eingeben..."} value={userid}
+                                           onChange={handleUserIdChange} style={style.innerInputInput}/>
+                                <Pressable colorScheme="primary" style={style.innerInputIcon}
+                                           onPress={handleQrEntered}>
+                                    <Icon name={"play"}/>
+                                </Pressable>
+                            </View>
+                        </VStack>
+                    </Box>
+                </Center>
+            </View>
         </KeyboardAvoidingView>
     );
 }
