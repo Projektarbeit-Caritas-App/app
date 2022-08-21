@@ -36,14 +36,14 @@ const SettingsPage = () => {
         Linking.openURL('https://gitlab.com/projektarbeit-caritas-app');
     }
 
-    return <View style={{backgroundColor: '#fff'}}>
-        <Box safeArea p="2" py="2" w="90%" maxW="500">
+    return <View style={{backgroundColor: '#fff', flex: 1}}>
+        <Box safeArea p="2" py="2" w="100%">
             <Pressable style={style.listElement} onPress={devInfo}>
-                <Icon name={'information-circle-outline'}></Icon>
+                <Icon style={style.listIcon} name={'information-circle-outline'}></Icon>
                 <Text>Entwicklerinformationen</Text>
             </Pressable>
             <Pressable style={style.listElement} onPress={logout}>
-                <Icon name={'exit-outline'}></Icon>
+                <Icon style={style.listIcon} name={'exit-outline'}></Icon>
                 <Text>Abmelden</Text>
             </Pressable>
         </Box>
@@ -60,6 +60,13 @@ const style = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         width: '100%',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderColor: '#ccc'
+    },
+    listIcon: {
+        fontSize: 20,
+        marginRight: 5
     }
 });
 

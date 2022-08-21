@@ -1,5 +1,5 @@
 import axios from "axios";
-import {initialUserData} from "./userMock";
+import {initialUserData} from "./models";
 import {useDispatch, useSelector} from "react-redux";
 import {AnyAction} from "redux";
 import {Dispatch} from "react";
@@ -35,13 +35,9 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
         ).then((response) => {
             console.log("postAxios:");
             console.log(response);
-
-            let tempUserData = initialUserData;
-            tempUserData.email = email;
-            console.log(response.data.token); //todo: Debug entfernen
             dispatch({
                 type: "SET_USER_DATA",
-                payload: tempUserData,
+                payload: response.data.user,
                 token: response.data.token
             })
             resolve(true);

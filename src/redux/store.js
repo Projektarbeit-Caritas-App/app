@@ -5,7 +5,9 @@ import {rootReducer} from "./reducers";
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 store.subscribe(() => {
-    console.log(store.getState());
+    console.log('store.getState()', store.getState());
+    const userReducer = store.getState().userReducer;
+    localStorage.setItem('userReducer', JSON.stringify(userReducer));
 })
 
 export default store;

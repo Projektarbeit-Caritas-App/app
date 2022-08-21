@@ -1,4 +1,4 @@
-import {initialUserState} from "./userMock";
+import {getData, initialUserState} from "./models";
 
 export function clearUserData() {
     return {
@@ -6,7 +6,11 @@ export function clearUserData() {
     }
 }
 
-export default function userReducer(userState = initialUserState, action) {
+export default function userReducer(userState, action) {
+    if(userState === undefined)
+    {
+        userState = getData();
+    }
     switch (action.type) {
         case "SET_USER_DATA": {
             return {
