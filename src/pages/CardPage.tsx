@@ -8,59 +8,40 @@ const CardPage = (props: any) => {
     const card = props.route.params.data.card;
     const cardId = card.id;
 
-    let tempPerson: any = {id: 1, age: 1, gender: '', data: null};
-    let tempPersons: any = [];
-    props.route.params.data.persons.forEach((singlePerson: any) => {
-        tempPerson.id = singlePerson.id;
-        tempPerson.age = singlePerson.age;
-        tempPerson.gender = "männlich";
-        if (singlePerson.gender === 'female') {
-            tempPerson.gender = "weiblich";
-        } else if (singlePerson.gender === 'divers') {
-            tempPerson.gender = singlePerson.gender;
-        }
-        tempPerson.data = singlePerson.limitation_states;
-        tempPersons.push(tempPerson);
-    })
-
     const [lineItems, setLineItems] = useState<LineItem[] | []>([]);
-    const [persons, setPersons] = useState<any[]>(tempPersons);
+    const [persons, setPersons] = useState<any[]>(props.route.params.data.persons);
 
-    const addOrder = (personIndex: any, data: any) => {
-        let item = persons[personIndex];
-        console.log("amangus",item, data); //todo: Debug entfernen
+
+    const addOrder = (limitationIndex: any, data: any, section: any) => {
+        let item = persons[section.index];
         let index = lineItems.findIndex(lineItem => lineItem.person_id===item.id && lineItem.product_type_id === data.product_type.id);
         let amount = 1;
         let tempLineItems: LineItem[] = lineItems;
-        console.log('index',index); //todo: Debug entfernen
         if(index !== -1)
         {
             amount += lineItems[index].amount;
-            tempLineItems = tempLineItems.slice(index, index);
-            console.log('sliced '+ index, tempLineItems); //todo: Debug entfernen
+            tempLineItems = lineItems.filter(lineItem => !(lineItem.person_id === lineItems[index].person_id && lineItem.product_type_id === lineItems[index].product_type_id));
         }
+
         let lineItem: LineItem = {
             person_id: item.id,
             product_type_id: data.product_type.id,
             amount: amount
         };
-        console.log(tempLineItems); //todo: Debug entfernen
-        tempLineItems.push(lineItem);
-        setLineItems(tempLineItems);
-        data.used = 5555;
-        console.log('setLineItems', tempLineItems); //todo: Debug entfernen
+        setLineItems([...tempLineItems, lineItem]);
     }
 
     // @ts-ignore
-    const Item = ({data, index}) => {
+    const Item = ({data, index, section}) => {
+        let cartItem = lineItems.find(lineItem => lineItem.person_id===persons[section.index].id && lineItem.product_type_id === data.product_type.id);
         return( //data.product_type.id todo
         <View style={styles.item}>
             <Text>{data.product_type.icon} {data.product_type.name}</Text>
             <View style={styles.inline}>
                 <View style={styles.actions}>
                     <Pressable style={styles.actionsButton}><Text style={styles.actionsText}>-</Text></Pressable>
-                    <Text style={styles.actionsText}>{data.used}/{data.limit}</Text>
-                    <Pressable style={styles.actionsButton} onPress={() => addOrder(index, data)}><Text style={styles.actionsText}>+</Text></Pressable>
+                    <Text style={styles.actionsText}>{data.used}/{data.limit} [{cartItem ? (<Text>{cartItem.amount}</Text>):null} ]</Text>
+                    <Pressable style={styles.actionsButton} onPress={() => addOrder(index, data, section)}><Text style={styles.actionsText}>+</Text></Pressable>
                 </View>
             </View>
         </View>
@@ -115,7 +96,7 @@ const CardPage = (props: any) => {
                     <SectionList
                         sections={persons}
                         keyExtractor={(item, index) => item + index}
-                        renderItem={({item, index}) => <Item data={item} index={index}/>}
+                        renderItem={({item, index, section}) => <Item data={item} index={index} section={section}/>}
                         renderSectionHeader={({section: {age, gender}}) => (
                             <Text style={styles.heading}>{age} Jahre, {gender}</Text>
                         )}

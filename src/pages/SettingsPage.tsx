@@ -6,7 +6,7 @@ import {
 } from "native-base";
 import Icon from "react-native-vector-icons/Ionicons";
 import {useDispatch} from "react-redux";
-import { clearUserData } from '../redux/data/user';
+import { clearUserData } from '../redux/data/userReducer';
 import {Link, useNavigation} from "@react-navigation/native";
 
 const SettingsPage = () => {

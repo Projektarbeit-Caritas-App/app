@@ -1,6 +1,4 @@
 import axios from "axios";
-import {initialUserData} from "./models";
-import {useDispatch, useSelector} from "react-redux";
 import {AnyAction} from "redux";
 import {Dispatch} from "react";
 
@@ -14,12 +12,44 @@ const GET_CARD = BASE_URL + 'api/card/visit/';
 
 //todo: Catch 401 and logout user
 
-export const getCardByID = (id: number, config: object) => {
+export const getCardByID = (id: number, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.get(GET_CARD + id, config).then((response) => {
-            resolve(response);
-        }).catch(reject);
+
+            resolve(prepareDataForCard(response));
+        }).catch(r => {
+            if(r.response.status === 401) {
+                dispatch({
+                    type: "CLEAR_USER_DATA"
+                })
+                resolve('Unauthorized');
+            }
+            else reject();
+        });
     })
+}
+
+const prepareDataForCard = (res: any) =>
+{
+    const card = res.data.card;
+    let tempPerson: any = {id: 1, age: 1, gender: '', data: null};
+    let personsToSet: any = [];
+
+    res.data.persons.forEach((singlePerson: any) => {
+        tempPerson = singlePerson;
+        tempPerson.index = personsToSet.length;
+        tempPerson.data = singlePerson.limitation_states;
+        if (singlePerson.gender === 'female') {
+            tempPerson.gender = "weiblich";
+        } else if (singlePerson.gender === 'male') {
+            tempPerson.gender = "männlich";
+        }
+        else{
+            tempPerson.gender = singlePerson.gender;
+        }
+        personsToSet.push(tempPerson);
+    })
+    return {card: card, persons: personsToSet};
 }
 
 export const loginUser = (email: string, password: string, dispatch: Dispatch<AnyAction>) => {

@@ -4,15 +4,16 @@ import {Alert, Box, Center, KeyboardAvoidingView, VStack} from "native-base";
 import {BarCodeScanner} from 'expo-barcode-scanner';
 import Icon from "react-native-vector-icons/FontAwesome";
 import {getCardByID} from "../redux/data/api";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useNavigation} from "@react-navigation/native";
 
 const ScanPage = () => {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
-    const [userid, setUserid] = useState('50080528753334');
+    const [cardId, setCardId] = useState('50080528753334');
     const state = useSelector((state) => state);
     const navigation = useNavigation();
+    const dispatch = useDispatch();
 
     useEffect(() => {
         (async () => {
@@ -22,20 +23,23 @@ const ScanPage = () => {
     }, [hasPermission, scanned]);
 
     useEffect(() => {
-        if (userid !== undefined && userid.length === 14) {
+        if (cardId !== undefined && cardId.length === 14) {
             handleQrEntered();
         }
-    }, [userid])
+    }, [cardId])
 
     const handleQrEntered = () => {
-        console.log('userid', userid); //todo: Debug entfernen
-        if (userid !== undefined && userid.length === 14) {
+        console.log('cardId', cardId); //todo: Debug entfernen
+        if (cardId !== undefined && (cardId.length >= 14 && cardId.length <= 16)) {
             const config = {
                 headers: {Authorization: `Bearer ${state.userReducer.token}`}
             };
 
-            getCardByID(parseInt(userid), config).then(res => {
-                navigation.navigate('CardPage', { data: res.data })
+            getCardByID(parseInt(cardId), config, dispatch).then(res => {
+                if(res.persons !== undefined) {
+
+                    navigation.navigate('CardPage', {data: res})
+                }
             }).catch(() => {
                 alert("Der eingegebene oder gescannte QR Code konnte keinem Benutzer zugeordnet werden. Bitte überprüfen Sie Ihre Eingabe.")
             })
@@ -46,11 +50,11 @@ const ScanPage = () => {
 
     const handleBarCodeScanned = ({data}) => {
         setScanned(true);
-        setUserid(data);
+        setCardId(data);
     };
 
     const handleUserIdChange = (e) => {
-        setUserid(e.target.value);
+        setCardId(e.target.value);
     }
 
     return (
@@ -81,7 +85,7 @@ const ScanPage = () => {
                         </TouchableWithoutFeedback>
                         <VStack space={3} mt={1}>
                             <View style={style.innerInput}>
-                                <TextInput placeholder={"Nummer eingeben..."} value={userid}
+                                <TextInput placeholder={"Nummer eingeben..."} value={cardId}
                                            onChange={handleUserIdChange} style={style.innerInputInput}/>
                                 <Pressable colorScheme="primary" style={style.innerInputIcon}
                                            onPress={handleQrEntered}>
