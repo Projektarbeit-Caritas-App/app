@@ -20,6 +20,7 @@ const CardPage = (props: any) => {
         let tempLineItems: LineItem[] = lineItems;
         if (index !== -1) {
             amount += lineItems[index].amount;
+            //get all line items but not the selected one and maybe add it later again
             tempLineItems = lineItems.filter(lineItem => !(lineItem.person_id === lineItems[index].person_id && lineItem.product_type_id === lineItems[index].product_type_id));
         }
 
@@ -28,23 +29,54 @@ const CardPage = (props: any) => {
             product_type_id: data.product_type.id,
             amount: amount
         };
+        //if limit reached
+        if (lineItem.amount + data.used > data.limit) return;
+
         setLineItems([...tempLineItems, lineItem]);
     }
 
+    const removeOrder = (limitationIndex: any, data: any, section: any) => {
+        let item = persons[section.index];
+        let index = lineItems.findIndex(lineItem => lineItem.person_id === item.id && lineItem.product_type_id === data.product_type.id);
+        let tempLineItems: LineItem[] = lineItems;
+        let amount = 0;
+        if (index !== -1) {
+            amount = lineItems[index].amount;
+            //get all line items but not the selected one and maybe add it later again
+            tempLineItems = lineItems.filter(lineItem => !(lineItem.person_id === lineItems[index].person_id && lineItem.product_type_id === lineItems[index].product_type_id));
+        }
+        //limit reached
+        if(amount <= 0) return;
+
+        if (amount > 1) {
+            let lineItem: LineItem = {
+                person_id: item.id,
+                product_type_id: data.product_type.id,
+                amount: amount - 1
+            };
+            setLineItems([...tempLineItems, lineItem]);
+        }
+        else setLineItems([...tempLineItems]);
+    }
+
     const RepetetiveImage = (props: any) => {
-        console.log(props.src); //todo: Debug entfFernen
-        const icon = getIcon(props.src);
+        let cartItem = lineItems.find(lineItem => lineItem.person_id === persons[props.section.index].id && lineItem.product_type_id === props.data.product_type.id);
+        const iconSource = getIcon(props.src);
         const renderImages = () => {
-            let images = [];
-            for (let i = 1; i <= props.limit; i++) {
-                if(i <= props.used) {
-                    images.push(<Image key={i} source={icon} alt={props.name} style={styles.iconUsed} resizeMode="contain"></Image>);
-                }
-                else{
-                    images.push(<Image key={i} source={icon} alt={props.name} style={styles.icon} resizeMode="contain"></Image>)
+            let icons = [];
+            for (let i = 1; i <= props.data.limit; i++) {
+                if (i <= props.data.used) {
+                    icons.push(<Image key={i} source={iconSource} alt={props.name}
+                                      style={[styles.icon, styles.iconUsed]} resizeMode="contain"></Image>);
+                } else if (cartItem !== undefined && i <= cartItem.amount) {
+                    icons.push(<Image key={i} source={iconSource} alt={props.name} style={[styles.icon, styles.iconNew]}
+                                      resizeMode="contain"></Image>);
+                } else {
+                    icons.push(<Image key={i} source={iconSource} alt={props.name} style={styles.icon}
+                                      resizeMode="contain"></Image>)
                 }
             }
-            return images;
+            return icons;
         };
         return (
             <>
@@ -55,16 +87,16 @@ const CardPage = (props: any) => {
 
     // @ts-ignore
     const Item = ({data, index, section}) => {
-        let cartItem = lineItems.find(lineItem => lineItem.person_id === persons[section.index].id && lineItem.product_type_id === data.product_type.id);
-        return ( //data.product_type.id todo
+
+        return (
             <View style={styles.item}>
                 <Text><RepetetiveImage src={data.product_type.icon}
-                                       name={data.product_type.name} used={data.used} limit={data.limit}></RepetetiveImage> {data.product_type.name}</Text>
+                                       name={data.product_type.name} data={data}
+                                       section={section}></RepetetiveImage> {data.product_type.name}</Text>
                 <View style={styles.inline}>
                     <View style={styles.actions}>
-                        <Pressable style={styles.actionsButton}><Text style={styles.actionsText}>-</Text></Pressable>
-                        <Text style={styles.actionsText}>{data.used}/{data.limit} [{cartItem ? (
-                            <Text>{cartItem.amount}</Text>) : null} ]</Text>
+                        <Pressable style={styles.actionsButton} onPress={() => removeOrder(index, data, section)}><Text style={styles.actionsText}>-</Text></Pressable>
+                        <Text style={styles.actionsText}>{data.used}/{data.limit} </Text>
                         <Pressable style={styles.actionsButton} onPress={() => addOrder(index, data, section)}><Text
                             style={styles.actionsText}>+</Text></Pressable>
                     </View>
@@ -178,9 +210,10 @@ const styles = StyleSheet.create({
         height: 20
     },
     iconUsed: {
-        width: 20,
-        height: 20,
         tintColor: 'gray'
+    },
+    iconNew: {
+        tintColor: 'green'
     }
 });
 
