@@ -1,8 +1,9 @@
 import {SafeAreaView, SectionList, View, StyleSheet} from "react-native";
-import {Text, Box, Heading, Stack, HStack, Pressable} from "native-base";
+import {Text, Box, Heading, Stack, HStack, Pressable, Image} from "native-base";
 import {format} from 'date-fns'
-import {useState} from "react";
+import React, {useState} from "react";
 import {LineItem} from "../redux/data/models";
+import {getIcon} from "../services/image";
 
 const CardPage = (props: any) => {
     const card = props.route.params.data.card;
@@ -14,11 +15,10 @@ const CardPage = (props: any) => {
 
     const addOrder = (limitationIndex: any, data: any, section: any) => {
         let item = persons[section.index];
-        let index = lineItems.findIndex(lineItem => lineItem.person_id===item.id && lineItem.product_type_id === data.product_type.id);
+        let index = lineItems.findIndex(lineItem => lineItem.person_id === item.id && lineItem.product_type_id === data.product_type.id);
         let amount = 1;
         let tempLineItems: LineItem[] = lineItems;
-        if(index !== -1)
-        {
+        if (index !== -1) {
             amount += lineItems[index].amount;
             tempLineItems = lineItems.filter(lineItem => !(lineItem.person_id === lineItems[index].person_id && lineItem.product_type_id === lineItems[index].product_type_id));
         }
@@ -31,24 +31,50 @@ const CardPage = (props: any) => {
         setLineItems([...tempLineItems, lineItem]);
     }
 
+    const RepetetiveImage = (props: any) => {
+        console.log(props.src); //todo: Debug entfFernen
+        const icon = getIcon(props.src);
+        const renderImages = () => {
+            let images = [];
+            for (let i = 1; i <= props.limit; i++) {
+                if(i <= props.used) {
+                    images.push(<Image key={i} source={icon} alt={props.name} style={styles.iconUsed} resizeMode="contain"></Image>);
+                }
+                else{
+                    images.push(<Image key={i} source={icon} alt={props.name} style={styles.icon} resizeMode="contain"></Image>)
+                }
+            }
+            return images;
+        };
+        return (
+            <>
+                {renderImages()}
+            </>
+        )
+    }
+
     // @ts-ignore
     const Item = ({data, index, section}) => {
-        let cartItem = lineItems.find(lineItem => lineItem.person_id===persons[section.index].id && lineItem.product_type_id === data.product_type.id);
-        return( //data.product_type.id todo
-        <View style={styles.item}>
-            <Text>{data.product_type.icon} {data.product_type.name}</Text>
-            <View style={styles.inline}>
-                <View style={styles.actions}>
-                    <Pressable style={styles.actionsButton}><Text style={styles.actionsText}>-</Text></Pressable>
-                    <Text style={styles.actionsText}>{data.used}/{data.limit} [{cartItem ? (<Text>{cartItem.amount}</Text>):null} ]</Text>
-                    <Pressable style={styles.actionsButton} onPress={() => addOrder(index, data, section)}><Text style={styles.actionsText}>+</Text></Pressable>
+        let cartItem = lineItems.find(lineItem => lineItem.person_id === persons[section.index].id && lineItem.product_type_id === data.product_type.id);
+        return ( //data.product_type.id todo
+            <View style={styles.item}>
+                <Text><RepetetiveImage src={data.product_type.icon}
+                                       name={data.product_type.name} used={data.used} limit={data.limit}></RepetetiveImage> {data.product_type.name}</Text>
+                <View style={styles.inline}>
+                    <View style={styles.actions}>
+                        <Pressable style={styles.actionsButton}><Text style={styles.actionsText}>-</Text></Pressable>
+                        <Text style={styles.actionsText}>{data.used}/{data.limit} [{cartItem ? (
+                            <Text>{cartItem.amount}</Text>) : null} ]</Text>
+                        <Pressable style={styles.actionsButton} onPress={() => addOrder(index, data, section)}><Text
+                            style={styles.actionsText}>+</Text></Pressable>
+                    </View>
                 </View>
             </View>
-        </View>
-    )};
+        )
+    };
 
     return (
-        <View>
+        <>
             <Box alignItems="center" mx={4}>
                 <Box rounded="lg" width={'100%'} overflow="hidden" borderColor="coolGray.200" borderWidth="1" m={4}
                      _dark={{
@@ -92,25 +118,26 @@ const CardPage = (props: any) => {
                         </HStack>
                     </Stack>
                 </Box>
-                <SafeAreaView style={styles.container}>
-                    <SectionList
-                        sections={persons}
-                        keyExtractor={(item, index) => item + index}
-                        renderItem={({item, index, section}) => <Item data={item} index={index} section={section}/>}
-                        renderSectionHeader={({section: {age, gender}}) => (
-                            <Text style={styles.heading}>{age} Jahre, {gender}</Text>
-                        )}
-                    />
-                </SafeAreaView>
+
+                <View style={styles.container}>
+                    <SafeAreaView>
+                        <SectionList
+                            sections={persons}
+                            keyExtractor={(item, index) => item + index}
+                            renderItem={({item, index, section}) => <Item data={item} index={index} section={section}/>}
+                            renderSectionHeader={({section: {age, gender}}) => (
+                                <Text style={styles.heading}>{age} Jahre, {gender}</Text>
+                            )}
+                        />
+                    </SafeAreaView>
+                </View>
             </Box>
-        </View>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        marginHorizontal: 16,
         width: '100%'
     },
     item: {
@@ -128,7 +155,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         padding: 10
     },
-    inline:{
+    inline: {
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
@@ -141,10 +168,19 @@ const styles = StyleSheet.create({
     actionsButton: {
         backgroundColor: '#efefef'
     },
-    actionsText:{
+    actionsText: {
         fontWeight: '700',
         paddingVertical: 3,
         paddingHorizontal: 8
+    },
+    icon: {
+        width: 20,
+        height: 20
+    },
+    iconUsed: {
+        width: 20,
+        height: 20,
+        tintColor: 'gray'
     }
 });
 

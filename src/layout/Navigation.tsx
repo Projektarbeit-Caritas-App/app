@@ -17,8 +17,9 @@ const Navigation = () => {
 
     const state = useSelector((state: any) => state);
     console.log(state); //todo: Debug entfernen
+    console.log('state.userReducer'); //todo: Debug entfernen
     console.log(state.userReducer); //todo: Debug entfernen
-    let isLoggedin = (state.userReducer.token.length > 0);
+    let isLoggedin = (state.userReducer !== null && state.userReducer.token.length > 0);
 
     return (
         <>

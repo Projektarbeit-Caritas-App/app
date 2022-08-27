@@ -1,7 +1,8 @@
 import {Provider} from 'react-redux';
 import {extendTheme, NativeBaseProvider, theme} from 'native-base';
-import store from "./src/redux/store";
+import {store, persistor} from "./src/redux/store";
 import RootNavigation from "./src/layout/RootNavigation";
+import {PersistGate} from 'redux-persist/integration/react'
 
 const stylesheetTheme = extendTheme({
     colors: {
@@ -14,7 +15,9 @@ const App = () => {
     return (
         <NativeBaseProvider theme={stylesheetTheme}>
             <Provider store={store}>
-                <RootNavigation/>
+                <PersistGate loading={null} persistor={persistor}>
+                    <RootNavigation/>
+                </PersistGate>
             </Provider>
         </NativeBaseProvider>
     );

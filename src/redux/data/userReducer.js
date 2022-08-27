@@ -1,5 +1,3 @@
-import {getData, initialUserState} from "./models";
-
 export function clearUserData() {
     return {
         type: "CLEAR_USER_DATA"
@@ -9,7 +7,7 @@ export function clearUserData() {
 export default function userReducer(userState, action) {
     if(userState === undefined)
     {
-        userState = getData();
+        userState = null;
     }
     switch (action.type) {
         case "SET_USER_DATA": {

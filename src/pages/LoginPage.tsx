@@ -9,20 +9,22 @@ import {
 } from "native-base";
 import {loginUser} from "../redux/data/api";
 import {useDispatch} from "react-redux";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [show, setShow] = React.useState(false);
     const dispatch = useDispatch();
 
     const [error, setError] = useState({type: '', msg: ''});
 
-    const handleUsernameChange = (event: any) => {
-        setUsername(event.target.value);
+    const handleUsernameChange = (value: any) => {
+        setUsername(value);
     }
 
-    const handlePasswordChange = (event: any) => {
-        setPassword(event.target.value);
+    const handlePasswordChange = (value: any) => {
+        setPassword(value);
     }
 
     const submitForm = () => {
@@ -54,11 +56,11 @@ const LoginPage = () => {
                         </Alert>) : null}
                         <FormControl>
                             <FormControl.Label>E-Mail Adresse</FormControl.Label>
-                            <Input value={username} onChange={handleUsernameChange}/>
+                            <Input value={username} keyboardType="email-address" textContentType={'emailAddress'} autoCapitalize='none' autoCorrect={false} onChangeText={value => handleUsernameChange(value)} placeholder={"E-Mail"}/>
                         </FormControl>
                         <FormControl>
                             <FormControl.Label>Passwort</FormControl.Label>
-                            <Input type="password" value={password} onChange={handlePasswordChange}/>
+                            <Input type={show ? "text" : "password"} InputRightElement={<Icon name={show ? "visibility-off" : "visibility"} size={15} style={style.visibilityButton} onPress={() => setShow(!show)} />} value={password} onChangeText={value => handlePasswordChange(value)} placeholder="Passwort"/>
                         </FormControl>
                         <Button mt="2" colorScheme="primary" onPress={submitForm}>
                             Anmelden
@@ -82,6 +84,9 @@ const style = StyleSheet.create({
     centerBox: {
         display: "flex",
         justifyContent: "center"
+    },
+    visibilityButton:{
+        marginRight: 10
     }
 });
 

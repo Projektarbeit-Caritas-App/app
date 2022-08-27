@@ -56,13 +56,16 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
 
-        axios.post(POST_LOGIN,
-            {
-                email: email,
-                password: password,
-                device_name: 'mobile'
-            }
-        ).then((response) => {
+        axios({
+                method: 'post',
+                responseType: 'json',
+                url: POST_LOGIN,
+                data: {
+                    email: email,
+                    password: password,
+                    device_name: 'mobile'
+                }
+        }).then((response) => {
             console.log("postAxios:");
             console.log(response);
             dispatch({
@@ -73,6 +76,8 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
             resolve(true);
         }).catch(err => {
             console.log(err);
+            console.log(JSON.stringify(err));
+            console.log(err.response.data);
             if (err.response.status === 401) {
                 resolve('Ungültige Zugangsdaten, bitte versuchen Sie es erneut.');
             } else {

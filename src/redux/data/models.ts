@@ -1,15 +1,3 @@
-export const getData = () => {
-    let userReducer = localStorage.getItem('userReducer');
-    if (userReducer !== null) {
-        return JSON.parse(userReducer);
-    } else {
-        return {
-            user: null,
-            token: ''
-        };
-    }
-}
-
 export type User = {
     id: number,
     name: string,
