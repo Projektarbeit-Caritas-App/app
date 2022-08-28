@@ -1,11 +1,13 @@
 import {SafeAreaView, SectionList, View, StyleSheet} from "react-native";
-import {Text, Box, Heading, Stack, HStack, Pressable, Image} from "native-base";
+import {Text, Box, Heading, Stack, HStack, Pressable, Image, Button} from "native-base";
 import {format} from 'date-fns'
 import React, {useEffect, useState} from "react";
 import {LineItem} from "../redux/data/models";
 import {getIcon} from "../services/image";
 import {useDispatch, useSelector} from "react-redux";
-import {dispatchClearLineItems, dispatchSetLineItems} from "../redux/data/dispatcher";
+import {dispatchSetLineItems} from "../redux/data/dispatcher";
+import {useNavigation} from "@react-navigation/native";
+import RepetetiveImage from "../components/RepetetiveImage";
 
 const CardPage = (props: any) => {
     const card = props.route.params.data.card;
@@ -13,12 +15,13 @@ const CardPage = (props: any) => {
     const dispatch = useDispatch();
     const state = useSelector((state: any) => state);
     const [lineItems, setLineItems] = useState<LineItem[] | []>(state.lineItemReducer);
-    const [persons, setPersons] = useState<any[]>(props.route.params.data.persons);
+    const persons = props.route.params.data.persons;
+    console.log(persons); //todo: Debug entfernen
+    const navigation = useNavigation();
 
 
     useEffect(() => {
-        if(state.lineItemReducer != lineItems)
-        {
+        if (state.lineItemReducer != lineItems) {
             dispatchSetLineItems(dispatch, lineItems);
         }
     }, [lineItems])
@@ -34,11 +37,17 @@ const CardPage = (props: any) => {
             //get all line items but not the selected one and maybe add it later again
             tempLineItems = lineItems.filter(lineItem => !(lineItem.person_id === lineItems[index].person_id && lineItem.product_type_id === lineItems[index].product_type_id));
         }
-
         let lineItem: LineItem = {
             person_id: item.id,
             product_type_id: data.product_type.id,
-            amount: amount
+            amount: amount,
+            personInfos: item.age + ' Jahre, ' + item.gender,
+            data: {
+                name: data.product_type.name,
+                icon: data.product_type.icon,
+                used: data.used,
+                limit: data.limit
+            }
         };
         //if limit reached
         if (lineItem.amount + data.used > data.limit) return;
@@ -63,36 +72,17 @@ const CardPage = (props: any) => {
             let lineItem: LineItem = {
                 person_id: item.id,
                 product_type_id: data.product_type.id,
-                amount: amount - 1
+                amount: amount - 1,
+                personInfos: data.age + ' Jahre, ' + data.gender,
+                data: {
+                    name: data.product_type.name,
+                    icon: data.product_type.icon,
+                    used: data.used,
+                    limit: data.limit
+                }
             };
             setLineItems([...tempLineItems, lineItem]);
         } else setLineItems([...tempLineItems]);
-    }
-
-    const RepetetiveImage = (props: any) => {
-        const cartItem = props.cartitem;
-        const iconSource = getIcon(props.src);
-        const renderImages = () => {
-            let icons = [];
-            for (let i = 1; i <= props.data.limit; i++) {
-                if (i <= props.data.used) {
-                    icons.push(<Image key={i} source={iconSource} alt={props.name}
-                                      style={[styles.icon, styles.iconUsed]} resizeMode="contain"></Image>);
-                } else if (cartItem !== undefined && i <= cartItem.amount) {
-                    icons.push(<Image key={i} source={iconSource} alt={props.name} style={[styles.icon, styles.iconNew]}
-                                      resizeMode="contain"></Image>);
-                } else {
-                    icons.push(<Image key={i} source={iconSource} alt={props.name} style={styles.icon}
-                                      resizeMode="contain"></Image>)
-                }
-            }
-            return icons;
-        };
-        return (
-            <>
-                {renderImages()}
-            </>
-        )
     }
 
     // @ts-ignore
@@ -101,18 +91,20 @@ const CardPage = (props: any) => {
         let increasable = cartItem === undefined || (data.used + cartItem.amount < data.limit);
         let decreasable = cartItem !== undefined && (cartItem.amount > 0);
         return (
-            <View style={styles.item}>
-                <View style={styles.inline}>
-                    <Text style={[styles.actionsText, styles.typeText]}>{data.product_type.name}</Text>
-                    <View style={styles.actions}>
-                        <Pressable style={decreasable ? styles.actionsButton: styles.actionsButtonDisabled} onPress={() => removeOrder(index, data, section)}><Text
-                            style={decreasable ? [styles.lineItemText, styles.actionsText]: [styles.actionsText, styles.actionTextDisabled]}>-</Text></Pressable>
-                        <Text style={styles.actionsText}><RepetetiveImage src={data.product_type.icon}
+            <View style={style.item}>
+                <View style={style.inline}>
+                    <Text style={[style.actionsText, style.typeText]}>{data.product_type.name}</Text>
+                    <View style={style.actions}>
+                        <Pressable style={decreasable ? style.actionsButton : style.actionsButtonDisabled}
+                                   onPress={() => removeOrder(index, data, section)}><Text
+                            style={decreasable ? [style.lineItemText, style.actionsText] : [style.actionsText, style.actionTextDisabled]}>-</Text></Pressable>
+                        <Text style={style.actionsText}><RepetetiveImage src={data.product_type.icon}
                                                                           name={data.product_type.name} data={data}
                                                                           section={section}
                                                                           cartitem={cartItem}></RepetetiveImage></Text>
-                        <Pressable style={increasable ? styles.actionsButton: styles.actionsButtonDisabled} onPress={() => addOrder(index, data, section)}><Text
-                            style={increasable ? [styles.lineItemText, styles.actionsText]: [styles.actionsText, styles.actionTextDisabled]}>+</Text></Pressable>
+                        <Pressable style={increasable ? style.actionsButton : style.actionsButtonDisabled}
+                                   onPress={() => addOrder(index, data, section)}><Text
+                            style={increasable ? [style.lineItemText, style.actionsText] : [style.actionsText, style.actionTextDisabled]}>+</Text></Pressable>
                     </View>
                 </View>
             </View>
@@ -165,24 +157,30 @@ const CardPage = (props: any) => {
                     </Stack>
                 </Box>
 
-                <View style={styles.container}>
+                <View style={style.container}>
                     <SafeAreaView>
                         <SectionList
                             sections={persons}
                             keyExtractor={(item, index) => item + index}
                             renderItem={({item, index, section}) => <Item data={item} index={index} section={section}/>}
                             renderSectionHeader={({section: {age, gender}}) => (
-                                <Text style={styles.heading}>{age} Jahre, {gender}</Text>
+                                <Text style={style.heading}>{age} Jahre, {gender}</Text>
                             )}
                         />
                     </SafeAreaView>
                 </View>
+
+                {lineItems.length > 0 ? (
+                    <View style={[style.container, style.mt]}>
+                        <Button onPress={() => navigation.navigate('ShoppingCartPage')}>Zum Warenkorb</Button>
+                    </View>
+                ) : null}
             </Box>
         </>
     );
 }
 
-const styles = StyleSheet.create({
+const style = StyleSheet.create({
     container: {
         width: '100%'
     },
@@ -214,7 +212,7 @@ const styles = StyleSheet.create({
     actionsButton: {
         backgroundColor: '#cc1e1c'
     },
-    actionTextDisabled:{
+    actionTextDisabled: {
         color: '#b0b0b0'
     },
     actionsButtonDisabled: {
@@ -232,15 +230,8 @@ const styles = StyleSheet.create({
     typeText: {
         minWidth: 200
     },
-    icon: {
-        width: 20,
-        height: 20
-    },
-    iconUsed: {
-        tintColor: 'gray'
-    },
-    iconNew: {
-        tintColor: 'green'
+    mt:{
+        marginTop: 25
     }
 });
 

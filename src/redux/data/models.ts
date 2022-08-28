@@ -32,5 +32,12 @@ export type UserState = {
 export type LineItem = {
     person_id: string,
     product_type_id: string,
-    amount: number
+    amount: number,
+    personInfos: string, //following not required for api
+    data: {
+        name: string,
+        icon: string,
+        used: number,
+        limit: number
+    }
 }
