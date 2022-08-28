@@ -29,7 +29,6 @@ const ScanPage = () => {
     }, [cardId])
 
     const handleQrEntered = () => {
-        console.log('cardId', cardId); //todo: Debug entfernen
         if (cardId !== undefined && (cardId.length >= 14 && cardId.length <= 16)) {
             const config = {
                 headers: {Authorization: `Bearer ${state.userReducer.token}`}

@@ -1,16 +1,27 @@
 import {SafeAreaView, SectionList, View, StyleSheet} from "react-native";
 import {Text, Box, Heading, Stack, HStack, Pressable, Image} from "native-base";
 import {format} from 'date-fns'
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {LineItem} from "../redux/data/models";
 import {getIcon} from "../services/image";
+import {useDispatch, useSelector} from "react-redux";
+import {dispatchClearLineItems, dispatchSetLineItems} from "../redux/data/dispatcher";
 
 const CardPage = (props: any) => {
     const card = props.route.params.data.card;
     const cardId = card.id;
-
-    const [lineItems, setLineItems] = useState<LineItem[] | []>([]);
+    const dispatch = useDispatch();
+    const state = useSelector((state: any) => state);
+    const [lineItems, setLineItems] = useState<LineItem[] | []>(state.lineItemReducer);
     const [persons, setPersons] = useState<any[]>(props.route.params.data.persons);
+
+
+    useEffect(() => {
+        if(state.lineItemReducer != lineItems)
+        {
+            dispatchSetLineItems(dispatch, lineItems);
+        }
+    }, [lineItems])
 
 
     const addOrder = (limitationIndex: any, data: any, section: any) => {
@@ -46,7 +57,7 @@ const CardPage = (props: any) => {
             tempLineItems = lineItems.filter(lineItem => !(lineItem.person_id === lineItems[index].person_id && lineItem.product_type_id === lineItems[index].product_type_id));
         }
         //limit reached
-        if(amount <= 0) return;
+        if (amount <= 0) return;
 
         if (amount > 1) {
             let lineItem: LineItem = {
@@ -55,12 +66,11 @@ const CardPage = (props: any) => {
                 amount: amount - 1
             };
             setLineItems([...tempLineItems, lineItem]);
-        }
-        else setLineItems([...tempLineItems]);
+        } else setLineItems([...tempLineItems]);
     }
 
     const RepetetiveImage = (props: any) => {
-        let cartItem = lineItems.find(lineItem => lineItem.person_id === persons[props.section.index].id && lineItem.product_type_id === props.data.product_type.id);
+        const cartItem = props.cartitem;
         const iconSource = getIcon(props.src);
         const renderImages = () => {
             let icons = [];
@@ -87,18 +97,22 @@ const CardPage = (props: any) => {
 
     // @ts-ignore
     const Item = ({data, index, section}) => {
-
+        let cartItem = lineItems.find(lineItem => lineItem.person_id === persons[section.index].id && lineItem.product_type_id === data.product_type.id);
+        let increasable = cartItem === undefined || (data.used + cartItem.amount < data.limit);
+        let decreasable = cartItem !== undefined && (cartItem.amount > 0);
         return (
             <View style={styles.item}>
-                <Text><RepetetiveImage src={data.product_type.icon}
-                                       name={data.product_type.name} data={data}
-                                       section={section}></RepetetiveImage> {data.product_type.name}</Text>
                 <View style={styles.inline}>
+                    <Text style={[styles.actionsText, styles.typeText]}>{data.product_type.name}</Text>
                     <View style={styles.actions}>
-                        <Pressable style={styles.actionsButton} onPress={() => removeOrder(index, data, section)}><Text style={styles.actionsText}>-</Text></Pressable>
-                        <Text style={styles.actionsText}>{data.used}/{data.limit} </Text>
-                        <Pressable style={styles.actionsButton} onPress={() => addOrder(index, data, section)}><Text
-                            style={styles.actionsText}>+</Text></Pressable>
+                        <Pressable style={decreasable ? styles.actionsButton: styles.actionsButtonDisabled} onPress={() => removeOrder(index, data, section)}><Text
+                            style={decreasable ? [styles.lineItemText, styles.actionsText]: [styles.actionsText, styles.actionTextDisabled]}>-</Text></Pressable>
+                        <Text style={styles.actionsText}><RepetetiveImage src={data.product_type.icon}
+                                                                          name={data.product_type.name} data={data}
+                                                                          section={section}
+                                                                          cartitem={cartItem}></RepetetiveImage></Text>
+                        <Pressable style={increasable ? styles.actionsButton: styles.actionsButtonDisabled} onPress={() => addOrder(index, data, section)}><Text
+                            style={increasable ? [styles.lineItemText, styles.actionsText]: [styles.actionsText, styles.actionTextDisabled]}>+</Text></Pressable>
                     </View>
                 </View>
             </View>
@@ -174,7 +188,7 @@ const styles = StyleSheet.create({
     },
     item: {
         backgroundColor: '#fff',
-        padding: 10,
+        padding: 5,
         borderBottomLeftRadius: 5,
         borderBottomRightRadius: 5,
     },
@@ -195,15 +209,28 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         borderWidth: 1,
-        borderColor: '#ccc'
+        borderColor: '#ccc',
     },
     actionsButton: {
+        backgroundColor: '#cc1e1c'
+    },
+    actionTextDisabled:{
+        color: '#b0b0b0'
+    },
+    actionsButtonDisabled: {
         backgroundColor: '#efefef'
     },
+    lineItemText: {
+        color: '#fff'
+    },
     actionsText: {
-        fontWeight: '700',
-        paddingVertical: 3,
-        paddingHorizontal: 8
+        fontSize: 20,
+        lineHeight: 20,
+        paddingVertical: 5,
+        paddingHorizontal: 8,
+    },
+    typeText: {
+        minWidth: 200
     },
     icon: {
         width: 20,

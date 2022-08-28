@@ -1,6 +1,7 @@
 import axios from "axios";
 import {AnyAction} from "redux";
 import {Dispatch} from "react";
+import {dispatchClearUserData, dispatchSetUserData} from "./dispatcher";
 
 const BASE_URL = "https://caritas.wolfshoehle.eu/"
 
@@ -10,27 +11,21 @@ export const GET_LIMITATIONS = BASE_URL + 'api/admin/limitation/limits/';
 export const GET_LIMITATION_SETS = BASE_URL + 'api/admin/limitation/sets';
 const GET_CARD = BASE_URL + 'api/card/visit/';
 
-//todo: Catch 401 and logout user
-
 export const getCardByID = (id: number, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.get(GET_CARD + id, config).then((response) => {
 
             resolve(prepareDataForCard(response));
         }).catch(r => {
-            if(r.response.status === 401) {
-                dispatch({
-                    type: "CLEAR_USER_DATA"
-                })
+            if (r.response.status === 401) {
+                dispatchClearUserData(dispatch);
                 resolve('Unauthorized');
-            }
-            else reject();
+            } else reject();
         });
     })
 }
 
-const prepareDataForCard = (res: any) =>
-{
+const prepareDataForCard = (res: any) => {
     const card = res.data.card;
     let tempPerson: any = {id: 1, age: 1, gender: '', data: null};
     let personsToSet: any = [];
@@ -43,8 +38,7 @@ const prepareDataForCard = (res: any) =>
             tempPerson.gender = "weiblich";
         } else if (singlePerson.gender === 'male') {
             tempPerson.gender = "männlich";
-        }
-        else{
+        } else {
             tempPerson.gender = singlePerson.gender;
         }
         personsToSet.push(tempPerson);
@@ -57,27 +51,18 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
         axios.defaults.withCredentials = true;
 
         axios({
-                method: 'post',
-                responseType: 'json',
-                url: POST_LOGIN,
-                data: {
-                    email: email,
-                    password: password,
-                    device_name: 'mobile'
-                }
+            method: 'post',
+            responseType: 'json',
+            url: POST_LOGIN,
+            data: {
+                email: email,
+                password: password,
+                device_name: 'mobile'
+            }
         }).then((response) => {
-            console.log("postAxios:");
-            console.log(response);
-            dispatch({
-                type: "SET_USER_DATA",
-                payload: response.data.user,
-                token: response.data.token
-            })
+            dispatchSetUserData(dispatch, response.data.user, response.data.token);
             resolve(true);
         }).catch(err => {
-            console.log(err);
-            console.log(JSON.stringify(err));
-            console.log(err.response.data);
             if (err.response.status === 401) {
                 resolve('Ungültige Zugangsdaten, bitte versuchen Sie es erneut.');
             } else {
