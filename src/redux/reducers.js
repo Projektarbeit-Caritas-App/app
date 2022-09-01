@@ -3,17 +3,19 @@ import userReducer from "./data/userReducer";
 import {persistReducer} from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import lineItemReducer from "./data/lineItemReducer";
+import cartViewReducer from "./data/cartViewReducer";
 
 const persistConfig = {
     key: 'root',
     storage: AsyncStorage,
+    blacklist: ['nonPersistantReducer']
 }
 
-
-export const rootReducer = combineReducers({
-    userReducer,
-    lineItemReducer
+const nonPersistantReducer = combineReducers({
+    lineItemReducer,
+    cartViewReducer: cartViewReducer
 })
 
+const persistantReducer = persistReducer(persistConfig, userReducer);
 
-export const persistedReducer = persistReducer(persistConfig, rootReducer);
+export const rootReducer = combineReducers({persistantReducer: persistantReducer, nonPersistantReducer: nonPersistantReducer});

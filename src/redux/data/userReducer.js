@@ -1,9 +1,3 @@
-export function clearUserData() {
-    return {
-        type: "CLEAR_USER_DATA"
-    }
-}
-
 export default function userReducer(userState, action) {
     if(userState === undefined)
     {

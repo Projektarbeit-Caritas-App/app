@@ -11,7 +11,7 @@ const ScanPage = () => {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
     const [cardId, setCardId] = useState('50080528753334');
-    const state = useSelector((state) => state);
+    const state = useSelector(({persistantReducer}) => persistantReducer);
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
@@ -31,11 +31,11 @@ const ScanPage = () => {
     const handleQrEntered = () => {
         if (cardId !== undefined && (cardId.length >= 14 && cardId.length <= 16)) {
             const config = {
-                headers: {Authorization: `Bearer ${state.userReducer.token}`}
+                headers: {Authorization: `Bearer ${state.token}`}
             };
 
             getCardByID(parseInt(cardId), config, dispatch).then(res => {
-                if(res.persons !== undefined) {
+                if (res.persons !== undefined) {
 
                     navigation.navigate('CardPage', {data: res})
                 }

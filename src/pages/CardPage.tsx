@@ -2,25 +2,44 @@ import {SafeAreaView, SectionList, View, StyleSheet} from "react-native";
 import {Text, Box, Heading, Stack, HStack, Pressable, Image, Button} from "native-base";
 import {format} from 'date-fns'
 import React, {useEffect, useState} from "react";
-import {LineItem} from "../redux/data/models";
-import {getIcon} from "../services/image";
+import {Card, CartView, LineItem, Person} from "../redux/data/models";
 import {useDispatch, useSelector} from "react-redux";
-import {dispatchSetLineItems} from "../redux/data/dispatcher";
+import {
+    dispatchSetLineItems,
+    dispatchCartView
+} from "../redux/data/dispatcher";
 import {useNavigation} from "@react-navigation/native";
 import RepetetiveImage from "../components/RepetetiveImage";
 
 const CardPage = (props: any) => {
     const card = props.route.params.data.card;
-    const cardId = card.id;
     const dispatch = useDispatch();
-    const state = useSelector((state: any) => state);
+    const state = useSelector(({nonPersistantReducer}: any) => nonPersistantReducer);
     const [lineItems, setLineItems] = useState<LineItem[] | []>(state.lineItemReducer);
     const persons = props.route.params.data.persons;
-    console.log(persons); //todo: Debug entfernen
     const navigation = useNavigation();
 
-
     useEffect(() => {
+        let cartView: CartView = {card: card, persons: []};
+        if (lineItems.length > 0) {
+            persons.forEach((person: any) => {
+                let items = lineItems.filter((lineItem) => lineItem.person_id === person.id);
+                if (items.length > 0) {
+                    let personCopy: Person = Object.assign({}, person);
+                    personCopy.data = [];
+                    items.forEach((item) => {
+                        let belongingLimitation = person.limitation_states.find((limitation: any) => (limitation.product_type.id === item.product_type_id));
+                        // @ts-ignore todo: check notice
+                        personCopy.data.push({...item, ...belongingLimitation});
+                    })
+                    // @ts-ignore todo: check notice
+                    cartView.persons.push(personCopy);
+                }
+            })
+        }
+        console.log(cartView); //todo: Debug entfernen
+        dispatchCartView(dispatch, cartView);
+
         if (state.lineItemReducer != lineItems) {
             dispatchSetLineItems(dispatch, lineItems);
         }
@@ -40,17 +59,10 @@ const CardPage = (props: any) => {
         let lineItem: LineItem = {
             person_id: item.id,
             product_type_id: data.product_type.id,
-            amount: amount,
-            personInfos: item.age + ' Jahre, ' + item.gender,
-            data: {
-                name: data.product_type.name,
-                icon: data.product_type.icon,
-                used: data.used,
-                limit: data.limit
-            }
+            amount: amount
         };
         //if limit reached
-        if (lineItem.amount + data.used > data.limit) return;
+        if (data.limit !== null && lineItem.amount + data.used > data.limit) return;
 
         setLineItems([...tempLineItems, lineItem]);
     }
@@ -72,14 +84,7 @@ const CardPage = (props: any) => {
             let lineItem: LineItem = {
                 person_id: item.id,
                 product_type_id: data.product_type.id,
-                amount: amount - 1,
-                personInfos: data.age + ' Jahre, ' + data.gender,
-                data: {
-                    name: data.product_type.name,
-                    icon: data.product_type.icon,
-                    used: data.used,
-                    limit: data.limit
-                }
+                amount: amount - 1
             };
             setLineItems([...tempLineItems, lineItem]);
         } else setLineItems([...tempLineItems]);
@@ -88,7 +93,7 @@ const CardPage = (props: any) => {
     // @ts-ignore
     const Item = ({data, index, section}) => {
         let cartItem = lineItems.find(lineItem => lineItem.person_id === persons[section.index].id && lineItem.product_type_id === data.product_type.id);
-        let increasable = cartItem === undefined || (data.used + cartItem.amount < data.limit);
+        let increasable = data.limit == null || data.used < data.limit && (cartItem === undefined || false || (data.used + cartItem.amount < data.limit));
         let decreasable = cartItem !== undefined && (cartItem.amount > 0);
         return (
             <View style={style.item}>
@@ -99,9 +104,9 @@ const CardPage = (props: any) => {
                                    onPress={() => removeOrder(index, data, section)}><Text
                             style={decreasable ? [style.lineItemText, style.actionsText] : [style.actionsText, style.actionTextDisabled]}>-</Text></Pressable>
                         <Text style={style.actionsText}><RepetetiveImage src={data.product_type.icon}
-                                                                          name={data.product_type.name} data={data}
-                                                                          section={section}
-                                                                          cartitem={cartItem}></RepetetiveImage></Text>
+                                                                         name={data.product_type.name} data={data}
+                                                                         section={section}
+                                                                         cartitem={cartItem}></RepetetiveImage></Text>
                         <Pressable style={increasable ? style.actionsButton : style.actionsButtonDisabled}
                                    onPress={() => addOrder(index, data, section)}><Text
                             style={increasable ? [style.lineItemText, style.actionsText] : [style.actionsText, style.actionTextDisabled]}>+</Text></Pressable>
@@ -131,7 +136,7 @@ const CardPage = (props: any) => {
                                 color: "violet.500"
                             }} _dark={{
                                 color: "violet.400"
-                            }} fontWeight="500" ml="-0.5" mt="-1">Nr: {cardId}</Text>
+                            }} fontWeight="500" ml="-0.5" mt="-1">Nr: {card.id}</Text>
                         </Stack>
                         {card.street ? (
                             <Text fontWeight="400">
@@ -230,7 +235,7 @@ const style = StyleSheet.create({
     typeText: {
         minWidth: 200
     },
-    mt:{
+    mt: {
         marginTop: 25
     }
 });

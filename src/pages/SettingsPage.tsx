@@ -6,14 +6,18 @@ import {
 } from "native-base";
 import Icon from "react-native-vector-icons/Ionicons";
 import {useDispatch} from "react-redux";
-import { clearUserData } from '../redux/data/userReducer';
 import {Link, useNavigation} from "@react-navigation/native";
+import {dispatchClearUserData} from "../redux/data/dispatcher";
 
 const SettingsPage = () => {
     const dispatch = useDispatch();
     const navigation = useNavigation();
 
     const logout = () => {
+        //TODO REMOVE (web debug)
+        dispatchClearUserData(dispatch);
+        navigation.navigate('Login');
+
         Alert.alert(
             "Abmelden",
             "Möchten Sie sich wirklich abmelden?",
@@ -24,7 +28,7 @@ const SettingsPage = () => {
                 },
                 {
                     text: "Abmelden", onPress: () => {
-                        dispatch(clearUserData());
+                        dispatchClearUserData(dispatch);
                         navigation.navigate('Login');
                     }
                 }

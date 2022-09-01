@@ -5,19 +5,22 @@ import {dispatchClearUserData, dispatchSetUserData} from "./dispatcher";
 
 const BASE_URL = "https://caritas.wolfshoehle.eu/"
 
-export const POST_LOGIN = BASE_URL + 'api/auth/token';
-export const GET_USER = BASE_URL + 'api/admin/user/';
-export const GET_LIMITATIONS = BASE_URL + 'api/admin/limitation/limits/';
-export const GET_LIMITATION_SETS = BASE_URL + 'api/admin/limitation/sets';
+const POST_LOGIN = BASE_URL + 'api/auth/token';
 const GET_CARD = BASE_URL + 'api/card/visit/';
+const POST_CARD = BASE_URL + 'api/card/visit/';
 
 export const getCardByID = (id: number, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.get(GET_CARD + id, config).then((response) => {
 
+            console.log('response'); //todo: Debug entfernen
+            console.log(response); //todo: Debug entfernen
             resolve(prepareDataForCard(response));
         }).catch(r => {
+            console.log('reject'); //todo: Debug entfernen
+            console.log(r); //todo: Debug entfernen
             if (r.response.status === 401) {
+                console.log('dispatchClearUserData'); //todo: Debug entfernen
                 dispatchClearUserData(dispatch);
                 resolve('Unauthorized');
             } else reject();
@@ -68,6 +71,25 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
             } else {
                 reject('Unbekannter Fehler (' + err.response.status + '). Bitte versuchen Sie es erneut oder melden Sie dies einem Administrator.')
             }
+        });
+    })
+}
+
+export const orderLineItems = (cardID: number, data: object, config: object, dispatch: Dispatch<AnyAction>) => {
+    return new Promise((resolve, reject) => {
+        axios.post(POST_CARD + cardID, data, config).then((response) => {
+
+            console.log('response'); //todo: Debug entfernen
+            console.log(response); //todo: Debug entfernen
+            resolve(true);
+        }).catch(r => {
+            console.log('reject'); //todo: Debug entfernen
+            console.log(r); //todo: Debug entfernen
+            if (r.response.status === 401) {
+                console.log('dispatchClearUserData'); //todo: Debug entfernen
+                dispatchClearUserData(dispatch);
+                resolve('Unauthorized');
+            } else reject();
         });
     })
 }

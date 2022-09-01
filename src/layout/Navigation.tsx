@@ -17,8 +17,9 @@ const Stack = createStackNavigator();
 
 const Navigation = () => {
     const navigation = useNavigation();
-    const state = useSelector((state: any) => state);
-
+    const persistantReducer = useSelector(({persistantReducer}: any) => persistantReducer);
+    const nonPersistantReducer = useSelector(({nonPersistantReducer}: any) => nonPersistantReducer);
+    console.log(persistantReducer, nonPersistantReducer); //todo: Debug entfernen
     const getCartItemAmount =  (lineItems: LineItem[] | []) =>{
         let amount = 0;
         lineItems.forEach((lineItem) => {
@@ -28,8 +29,8 @@ const Navigation = () => {
     }
 
 
-    const cartItems = getCartItemAmount(state.lineItemReducer);
-    const isLoggedin = (state.userReducer !== null && state.userReducer.token.length > 0);
+    const cartItems = getCartItemAmount(nonPersistantReducer.lineItemReducer);
+    const isLoggedin = (persistantReducer.user !== null && persistantReducer.token.length > 0);
 
     return (
         <>

@@ -1,54 +1,81 @@
-import {Pressable, Text} from "native-base";
-import {useSelector} from "react-redux";
+import {Box, Button, Heading, HStack, Image, Pressable, Stack, Text} from "native-base";
+import {useDispatch, useSelector} from "react-redux";
 import React, {useState} from "react";
 import {LineItem} from "../redux/data/models";
 import {SafeAreaView, SectionList, StyleSheet, View} from "react-native";
 import RepetetiveImage from "../components/RepetetiveImage";
+import {getIcon} from "../services/image";
+import {orderLineItems} from "../redux/data/api";
 
 const ShoppingCartPage = () => {
-    const state = useSelector((state: any) => state);
-    const [lineItems, setLineItems] = useState<LineItem[] | []>(state.lineItemReducer);
-    console.log(lineItems); //todo: Debug entfernen
-
+    const state = useSelector(({nonPersistantReducer}: any) => nonPersistantReducer);
+    const persistantReducer = useSelector(({persistantReducer}: any) => persistantReducer);
+    const lineItems = state.lineItemReducer;
+    const cartView = state.cartViewReducer;
+    const dispatch = useDispatch();
 
     // @ts-ignore
-    const Item = ({data, section}) => {
+    const Item = ({data, index, section}) => {
         console.log('data'); //todo: Debug entfernen
         console.log(data); //todo: Debug entfernen
+        const iconSource = getIcon(data.product_type.icon);
         return (
             <View style={style.item}>
-                <View style={style.inline}>
-                    <Text style={[style.actionsText, style.typeText]}>{data.product_type.name}</Text>
-                    <View style={style.actions}>
-                        <Text style={style.actionsText}>
-                            <RepetetiveImage src={data.product_type.icon}
-                                             name={data.product_type.name} data={data}
-                                             section={section}
-                                             cartitem={data}></RepetetiveImage></Text>
-                    </View>
-                </View>
+                <Text>{data.amount}x{data.product_type.name} <Image source={iconSource} alt={data.product_type.name} style={style.icon}
+                                                                    resizeMode="contain"></Image></Text>
             </View>
         )
     };
 
+    const submitOrder = () => {
+        const config = {
+            headers: {Authorization: `Bearer ${persistantReducer.token}`}
+        };
+        orderLineItems(cartView.card.id, {lineItems: lineItems}, config, dispatch).then((result) => {
+
+        })
+        console.log('SUBMIT'); //todo: Debug entfernen
+    }
+
     return (
-        <View style={style.container}>
-            <Text>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium consequatur consequuntur
-                delectus enim explicabo facilis fuga quidem rem ullam voluptate. Dicta eos esse iusto laudantium non
-                officia quae quam similique.</Text>
-            <View>
+        <Box alignItems="center" mx={4}>
+            <Box rounded="lg" width={'100%'} overflow="hidden" borderColor="coolGray.200" borderWidth="1" m={4}
+                 _dark={{
+                     borderColor: "coolGray.600",
+                     backgroundColor: "gray.700"
+                 }} _web={{
+                shadow: 2,
+                borderWidth: 0
+            }} _light={{
+                backgroundColor: "gray.50"
+            }}>
+                <Stack p="4" space={0}>
+                    <Stack space={2}>
+                        <Heading size="md" ml="-1">{cartView.card.last_name}, {cartView.card.first_name}</Heading>
+                        <Text fontSize="xs" _light={{
+                            color: "violet.500"
+                        }} _dark={{
+                            color: "violet.400"
+                        }} fontWeight="500" ml="-0.5" mt="-1">Nr: {cartView.card.id}</Text>
+                    </Stack>
+                </Stack>
+            </Box>
+            <View style={style.container}>
                 <SafeAreaView>
                     <SectionList
-                        sections={lineItems}
+                        sections={cartView.persons}
                         keyExtractor={(item, index) => item + index}
-                        renderItem={({item, index, section}) => <Item data={item} section={section}/>}
-                        renderSectionHeader={({section: {personInfos}}) => (
-                            <Text style={style.heading}>{personInfos}</Text>
+                        renderItem={({item, index, section}) => <Item data={item} index={index} section={section}/>}
+                        renderSectionHeader={({section: {age, gender}}) => (
+                            <Text style={style.heading}>{age} Jahre, {gender}</Text>
                         )}
                     />
                 </SafeAreaView>
             </View>
-        </View>
+            <View style={[style.container, style.mt]}>
+                <Button onPress={() => submitOrder()}>Jetzt buchen</Button>
+            </View>
+        </Box>
     )
 }
 
@@ -89,6 +116,13 @@ const style = StyleSheet.create({
         flexWrap: 'wrap',
         borderWidth: 1,
         borderColor: '#ccc',
+    },
+    icon: {
+        width: 20,
+        height: 20
+    },
+    mt: {
+        marginTop: 25
     }
 });
 
