@@ -8,6 +8,7 @@ const BASE_URL = "https://caritas.wolfshoehle.eu/"
 const POST_LOGIN = BASE_URL + 'api/auth/token';
 const GET_CARD = BASE_URL + 'api/card/visit/';
 const POST_CARD = BASE_URL + 'api/card/visit/';
+const GET_SCHEDULE = BASE_URL + 'api/schedule/';
 
 export const getCardByID = (id: number, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
@@ -78,15 +79,48 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
 export const orderLineItems = (cardID: number, data: object, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.post(POST_CARD + cardID, data, config).then((response) => {
-
-            console.log('response'); //todo: Debug entfernen
-            console.log(response); //todo: Debug entfernen
             resolve(true);
         }).catch(r => {
-            console.log('reject'); //todo: Debug entfernen
-            console.log(r); //todo: Debug entfernen
             if (r.response.status === 401) {
-                console.log('dispatchClearUserData'); //todo: Debug entfernen
+                dispatchClearUserData(dispatch);
+                resolve('Unauthorized');
+            } else reject();
+        });
+    })
+}
+
+export const setCardComment = (cardID: number, comment: string, config: object, dispatch: Dispatch<AnyAction>) => {
+    return new Promise((resolve, reject) => {
+        axios.post(POST_CARD + cardID, {comment: comment}, config).then((response) => {
+            resolve(true);
+        }).catch(r => {
+            if (r.response.status === 401) {
+                dispatchClearUserData(dispatch);
+                resolve('Unauthorized');
+            } else reject();
+        });
+    })
+}
+
+export const getShops = (config: object, dispatch: Dispatch<AnyAction>) => {
+    return new Promise((resolve, reject) => {
+        axios.get(GET_SCHEDULE, config).then((response) => {
+            resolve(response.data);
+        }).catch(r => {
+            if (r.response.status === 401) {
+                dispatchClearUserData(dispatch);
+                resolve('Unauthorized');
+            } else reject();
+        });
+    })
+}
+
+export const getReservationsForShop = (id: number, config: object, dispatch: Dispatch<AnyAction>) => {
+    return new Promise((resolve, reject) => {
+        axios.get(GET_SCHEDULE + id, config).then((response) => {
+            resolve(response.data);
+        }).catch(r => {
+            if (r.response.status === 401) {
                 dispatchClearUserData(dispatch);
                 resolve('Unauthorized');
             } else reject();

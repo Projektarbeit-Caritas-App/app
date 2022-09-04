@@ -43,3 +43,10 @@ export const dispatchClearCartView = (dispatch: Dispatch<AnyAction>) => {
         type: "CLEAR_CART_VIEW"
     })
 }
+
+export const dispatchSetShop = (dispatch: Dispatch<AnyAction>, shop: number) => {
+    dispatch({
+        type: "SET_SHOP",
+        data: shop
+    })
+}

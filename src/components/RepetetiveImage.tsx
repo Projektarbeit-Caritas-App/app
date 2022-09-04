@@ -15,8 +15,6 @@ const RepetetiveImage = (props: any) => {
 
     const renderImages = () => {
         let icons = [];
-        console.log('cartItem'); //todo: Debug entfernen
-        console.log(cartItem); //todo: Debug entfernen
         for (let i = 1; i <= props.data.limit; i++) {
             if (i <= props.data.used) {
                 icons.push(<Image key={i} source={iconSource} alt={props.name}

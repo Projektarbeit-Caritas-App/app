@@ -6,11 +6,13 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import {getCardByID} from "../redux/data/api";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigation} from "@react-navigation/native";
+import ReservationList from "../components/ReservationList";
 
 const ScanPage = () => {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
-    const [cardId, setCardId] = useState('50080528753334');
+    const tempID = '50080528753334'; //todo: Remove debug
+    const [cardId, setCardId] = useState('');
     const state = useSelector(({persistantReducer}) => persistantReducer);
     const navigation = useNavigation();
     const dispatch = useDispatch();
@@ -93,6 +95,7 @@ const ScanPage = () => {
                             </View>
                         </VStack>
                     </Box>
+                    <ReservationList/>
                 </Center>
             </View>
         </KeyboardAvoidingView>

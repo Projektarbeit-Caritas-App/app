@@ -1,8 +1,8 @@
 import {SafeAreaView, SectionList, View, StyleSheet} from "react-native";
-import {Text, Box, Heading, Stack, HStack, Pressable, Image, Button} from "native-base";
+import {Text, Box, Heading, Stack, HStack, Pressable, Image, Button, TextArea} from "native-base";
 import {format} from 'date-fns'
 import React, {useEffect, useState} from "react";
-import {Card, CartView, LineItem, Person} from "../redux/data/models";
+import {CartView, LineItem, Person} from "../redux/data/models";
 import {useDispatch, useSelector} from "react-redux";
 import {
     dispatchSetLineItems,
@@ -10,6 +10,7 @@ import {
 } from "../redux/data/dispatcher";
 import {useNavigation} from "@react-navigation/native";
 import RepetetiveImage from "../components/RepetetiveImage";
+import {setCardComment} from "../redux/data/api";
 
 const CardPage = (props: any) => {
     const card = props.route.params.data.card;
@@ -18,6 +19,9 @@ const CardPage = (props: any) => {
     const [lineItems, setLineItems] = useState<LineItem[] | []>(state.lineItemReducer);
     const persons = props.route.params.data.persons;
     const navigation = useNavigation();
+    const [comment, setComment] = useState<string>(card.comment);
+    const [commentChanged, setCommentChanged] = useState(false);
+    const persistantReducer = useSelector(({persistantReducer}: any) => persistantReducer);
 
     useEffect(() => {
         let cartView: CartView = {card: card, persons: []};
@@ -44,6 +48,30 @@ const CardPage = (props: any) => {
             dispatchSetLineItems(dispatch, lineItems);
         }
     }, [lineItems])
+
+    useEffect(() => {
+        if (comment != card.comment && !(comment === '' && card.comment === null)) {
+            setCommentChanged(true);
+        } else {
+            setCommentChanged(false);
+        }
+    }, [comment])
+
+    const handleCommentChange = (value: any) => {
+        setComment(value);
+    }
+
+    const changeComment = () => {
+        const config = {
+            headers: {Authorization: `Bearer ${persistantReducer.token}`}
+        };
+        setCardComment(card.id, comment, config, dispatch).then(() => {
+            card.comment = comment;
+            setCommentChanged(false);
+        }).catch(() => {
+           alert("Fehler beim Speichern des Kommentars. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.")
+        });
+    }
 
 
     const addOrder = (limitationIndex: any, data: any, section: any) => {
@@ -159,6 +187,16 @@ const CardPage = (props: any) => {
                                     aktualisiert: {format(new Date(card.updated_at), 'dd.MM.Y')}</Text>
                             </HStack>
                         </HStack>
+                        <Box style={style.mt}>
+                            <TextArea autoCompleteType={'off'} aria-label="t1" numberOfLines={4}
+                                      placeholder="Kommentar abgeben..." value={comment}
+                                      onChangeText={value => handleCommentChange(value)} mb="5"/>
+                        </Box>
+                        {commentChanged ? (
+                            <View>
+                                <Button onPress={() => (changeComment())}>Kommentar speichern</Button>
+                            </View>
+                        ) : null}
                     </Stack>
                 </Box>
 
