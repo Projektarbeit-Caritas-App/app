@@ -1,10 +1,11 @@
 import {Box, Button, Center, CheckIcon, Heading, Select, Text, View} from "native-base";
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {getReservationsForShop, getShops} from "../redux/data/api";
+import {getCardByID, getReservationsForShop, getShops} from "../redux/data/api";
 import {dispatchSetShop} from "../redux/data/dispatcher";
-import {FlatList, SafeAreaView, StyleSheet} from "react-native";
+import {FlatList, Pressable, SafeAreaView, StyleSheet} from "react-native";
 import {format} from 'date-fns'
+import {useNavigation} from "@react-navigation/native";
 
 const ReservationList = () => {
     const [shops, setShops] = useState([]);
@@ -12,15 +13,8 @@ const ReservationList = () => {
     const [reservations, setReservations] = useState([]);
     const userStore = useSelector(({persistantReducer}: any) => persistantReducer);
     const dispatch = useDispatch();
-
-    console.log('userStore'); //todo: Debug entfernen
-    console.log(userStore); //todo: Debug entfernen
-
-    const handleShopIdChange = (shopId: any) => {
-        console.log('set'); //todo: Debug entfernen
-        console.log(shopId); //todo: Debug entfernen
-        setShopId(shopId);
-    }
+    const state = useSelector(({persistantReducer}: any) => persistantReducer);
+    const navigation = useNavigation();
 
     const changeShopId = () => {
         dispatchSetShop(dispatch, shopId);
@@ -45,34 +39,52 @@ const ReservationList = () => {
         console.log('useEffect'); //todo: Debug entfernen
     })
 
+    const handleQrEntered = (cardId: string) => {
+        const config = {
+            headers: {Authorization: `Bearer ${state.token}`}
+        };
+
+        getCardByID(parseInt(cardId), config, dispatch).then((res: any) => {
+            if (res.persons !== undefined) {
+                navigation.navigate('CardPage', {data: res})
+            }
+        }).catch(() => {
+            alert("Der eingegebene oder gescannte QR Code konnte keinem Benutzer zugeordnet werden. Bitte überprüfen Sie Ihre Eingabe.")
+        })
+    }
+
     //{name} ({Ort}, {Straße})
-    const renderItem = ({ item }) => (
-        <View>
-            <Text>{format(new Date(item.time), 'HH:mm')} Uhr: {item.card.last_name}, {item.card.first_name} {item.card_id}</Text>
+    const renderItem = ({item}) => (
+        <View style={style.item}>
+            <Pressable onPress={() => handleQrEntered(item.card_id)}>
+                <Text style={style.itemText}><Text
+                    style={style.itemStrong}>{format(new Date(item.time), 'HH:mm')} Uhr:</Text> {item.card.last_name}, {item.card.first_name} {item.card_id}
+                </Text>
+            </Pressable>
         </View>
     );
 
     return (
-        <View style={style.mtbig}>
+        <View style={[style.mtbig, style.reservationList]} w="100%" maxW={500}>
             <Center>
-                {userStore.shop === null?(
-                    <Box maxW="500">
+                {userStore.shop === null ? (
+                    <Box w="100%">
                         <Select selectedValue={shopId} minWidth="200" accessibilityLabel="Choose Service"
                                 placeholder="Laden wählen" _selectedItem={{
                             bg: "teal.600",
                             endIcon: <CheckIcon size="5"/>
-                        }} mt={1} onValueChange={itemValue => handleShopIdChange(itemValue)}>
+                        }} mt={1} onValueChange={itemValue => setShopId(itemValue)}>
                             {shops.map((singleShop: any) => <Select.Item label={singleShop.city} value={singleShop.id}
                                                                          key={singleShop.id}/>)}
                         </Select>
                         <Button onPress={() => (changeShopId())} style={style.mtsmall}>Laden speichern</Button>
                     </Box>
-                ):(
-                    <Box maxW="500">
+                ) : (
+                    <Box w="100%">
                         <Heading size="md">Heutige Reservierungen</Heading>
-                        {reservations.length === 0?(
+                        {reservations.length === 0 ? (
                             <Text>Keine Reservierungen vorhanden.</Text>
-                        ):(
+                        ) : (
                             <SafeAreaView>
                                 <FlatList
                                     data={reservations}
@@ -89,11 +101,26 @@ const ReservationList = () => {
 }
 
 const style = StyleSheet.create({
+    reservationList:{
+      padding: 5
+    },
     mtsmall: {
         marginTop: 5
     },
     mtbig: {
         marginTop: 25
+    },
+    item: {
+        padding: 5,
+        backgroundColor: '#fff3f3',
+        borderRadius: 5,
+        marginBottom: 2
+    },
+    itemStrong: {
+        fontWeight: '600'
+    },
+    itemText: {
+        fontSize: 16
     }
 });
 

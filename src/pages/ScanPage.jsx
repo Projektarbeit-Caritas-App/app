@@ -90,7 +90,7 @@ const ScanPage = () => {
                                            onChange={handleUserIdChange} style={style.innerInputInput}/>
                                 <Pressable colorScheme="primary" style={style.innerInputIcon}
                                            onPress={handleQrEntered}>
-                                    <Icon name={"play"}/>
+                                    <Icon name={"search"} style={style.icon}/>
                                 </Pressable>
                             </View>
                         </VStack>
@@ -131,9 +131,13 @@ const style = StyleSheet.create({
         padding: 5
     },
     innerInputIcon: {
-        backgroundColor: '#9a3e3e',
+        backgroundColor: '#cc1e1c',
         paddingHorizontal: 10,
-        paddingVertical: 5
+        display: "flex",
+        justifyContent: "center"
+    },
+    icon: {
+        color: '#fff'
     }
 });
 export default ScanPage;

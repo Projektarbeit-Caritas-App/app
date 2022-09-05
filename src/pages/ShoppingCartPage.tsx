@@ -21,7 +21,8 @@ const ShoppingCartPage = () => {
         const iconSource = getIcon(data.product_type.icon);
         return (
             <View style={style.item}>
-                <Text>{data.amount}x{data.product_type.name} <Image source={iconSource} alt={data.product_type.name} style={style.icon}
+                <Text style={style.itemText}>{data.amount}x{data.product_type.name} <Image source={iconSource} alt={data.product_type.name}
+                                                                    style={style.icon}
                                                                     resizeMode="contain"></Image></Text>
             </View>
         )
@@ -39,42 +40,50 @@ const ShoppingCartPage = () => {
 
     return (
         <Box alignItems="center" mx={4}>
-            <Box rounded="lg" width={'100%'} overflow="hidden" borderColor="coolGray.200" borderWidth="1" m={4}
-                 _dark={{
-                     borderColor: "coolGray.600",
-                     backgroundColor: "gray.700"
-                 }} _web={{
-                shadow: 2,
-                borderWidth: 0
-            }} _light={{
-                backgroundColor: "gray.50"
-            }}>
-                <Stack p="4" space={0}>
-                    <Stack space={2}>
-                        <Heading size="md" ml="-1">{cartView.card.last_name}, {cartView.card.first_name}</Heading>
-                        <Text fontSize="xs" _light={{
-                            color: "violet.500"
-                        }} _dark={{
-                            color: "violet.400"
-                        }} fontWeight="500" ml="-0.5" mt="-1">Nr: {cartView.card.id}</Text>
-                    </Stack>
-                </Stack>
-            </Box>
-            <View style={style.container}>
-                <SafeAreaView>
-                    <SectionList
-                        sections={cartView.persons}
-                        keyExtractor={(item, index) => item + index}
-                        renderItem={({item, index, section}) => <Item data={item} index={index} section={section}/>}
-                        renderSectionHeader={({section: {age, gender}}) => (
-                            <Text style={style.heading}>{age} Jahre, {gender}</Text>
-                        )}
-                    />
-                </SafeAreaView>
-            </View>
-            <View style={[style.container, style.mt]}>
-                <Button onPress={() => submitOrder()}>Jetzt buchen</Button>
-            </View>
+            {lineItems.length > 0 ? (
+                <>
+                    <Box rounded="lg" width={'100%'} overflow="hidden" borderColor="coolGray.200" borderWidth="1" m={4}
+                         _dark={{
+                             borderColor: "coolGray.600",
+                             backgroundColor: "gray.700"
+                         }} _web={{
+                        shadow: 2,
+                        borderWidth: 0
+                    }} _light={{
+                        backgroundColor: "gray.50"
+                    }}>
+                        <Stack p="4" space={0}>
+                            <Stack space={2}>
+                                <Heading size="md"
+                                         ml="-1">{cartView.card.last_name}, {cartView.card.first_name}</Heading>
+                                <Text fontSize="xs" _light={{
+                                    color: "violet.500"
+                                }} _dark={{
+                                    color: "violet.400"
+                                }} fontWeight="500" ml="-0.5" mt="-1">Nr: {cartView.card.id}</Text>
+                            </Stack>
+                        </Stack>
+                    </Box>
+                    <View style={style.container}>
+                        <SafeAreaView>
+                            <SectionList
+                                sections={cartView.persons}
+                                keyExtractor={(item, index) => item + index}
+                                renderItem={({item, index, section}) => <Item data={item} index={index}
+                                                                              section={section}/>}
+                                renderSectionHeader={({section: {age, gender}}) => (
+                                    <Text style={style.heading}>{age} Jahre, {gender}</Text>
+                                )}
+                            />
+                        </SafeAreaView>
+                    </View>
+                    <View style={[style.container, style.mt]}>
+                        <Button onPress={() => submitOrder()}>Jetzt buchen</Button>
+                    </View>
+                </>
+            ) : (
+                <Text>Keine Elemente im Warenkorb.</Text>
+            )}
         </Box>
     )
 }
@@ -98,9 +107,13 @@ const style = StyleSheet.create({
     },
     item: {
         backgroundColor: '#fff',
-        padding: 5,
+        paddingVertical: 5,
+        paddingHorizontal: 15,
         borderBottomLeftRadius: 5,
-        borderBottomRightRadius: 5,
+        borderBottomRightRadius: 5
+    },
+    itemText:{
+        fontSize: 16
     },
     actionsText: {
         fontSize: 20,

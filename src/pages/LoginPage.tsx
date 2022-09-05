@@ -5,7 +5,7 @@ import {
     Button,
     Center,
     Input,
-    VStack, FormControl, Heading, Image, Pressable, View, KeyboardAvoidingView, Text, Alert
+    VStack, FormControl, Heading, Image, Pressable, View, KeyboardAvoidingView, Text, Alert, Spinner, HStack
 } from "native-base";
 import {loginUser} from "../redux/data/api";
 import {useDispatch} from "react-redux";
@@ -15,6 +15,7 @@ const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [show, setShow] = React.useState(false);
+    const [pageLoading, setPageLoading] = useState(false);
     const dispatch = useDispatch();
 
     const [error, setError] = useState({type: '', msg: ''});
@@ -28,12 +29,15 @@ const LoginPage = () => {
     }
 
     const submitForm = () => {
+        setPageLoading(true);
         loginUser(username, password, dispatch).then((res: any) => {
             if (res !== true) {
                 setError({type: 'error', msg: res})
             }
+            setPageLoading(false);
         }).catch(err => {
             setError({type: 'warning', msg: err})
+            setPageLoading(false);
         })
     }
 
@@ -44,28 +48,44 @@ const LoginPage = () => {
                     <Image source={require('../assets/caritas.gif')} alt={'Logo'} style={style.image}
                            resizeMode="contain"></Image>
 
-                    <Heading size="md" fontWeight="600" color="coolGray.800" _dark={{
-                        color: "black"
-                    }}>
-                        Anmelden um fortzufahren
-                    </Heading>
+                    <Center>
+                        <Heading size="md" fontWeight="600" color="coolGray.800" _dark={{
+                            color: "black"
+                        }}>
+                            Anmelden um fortzufahren
+                        </Heading>
+                    </Center>
 
-                    <VStack space={3} mt="1">
-                        {(error.type !== '') ? (<Alert w="100%" colorScheme={error.type} status={error.type}>
-                            <Text>{error.msg}</Text>
-                        </Alert>) : null}
-                        <FormControl>
-                            <FormControl.Label>E-Mail Adresse</FormControl.Label>
-                            <Input value={username} keyboardType="email-address" textContentType={'emailAddress'} autoCapitalize='none' autoCorrect={false} onChangeText={value => handleUsernameChange(value)} placeholder={"E-Mail"}/>
-                        </FormControl>
-                        <FormControl>
-                            <FormControl.Label>Passwort</FormControl.Label>
-                            <Input type={show ? "text" : "password"} InputRightElement={<Icon name={show ? "visibility-off" : "visibility"} size={15} style={style.visibilityButton} onPress={() => setShow(!show)} />} value={password} onChangeText={value => handlePasswordChange(value)} placeholder="Passwort"/>
-                        </FormControl>
-                        <Button mt="2" colorScheme="primary" onPress={submitForm}>
-                            Anmelden
-                        </Button>
-                    </VStack>
+                    {pageLoading ? (
+                        <Center>
+                            <HStack space={8} justifyContent="center" alignItems="center">
+                                <Spinner size="lg" />
+                            </HStack>;
+                        </Center>
+                    ) : (
+                        <VStack space={3} mt="1">
+                            {(error.type !== '') ? (<Alert w="100%" colorScheme={error.type} status={error.type}>
+                                <Text>{error.msg}</Text>
+                            </Alert>) : null}
+                            <FormControl>
+                                <FormControl.Label>E-Mail Adresse</FormControl.Label>
+                                <Input value={username} keyboardType="email-address" textContentType={'emailAddress'}
+                                       autoCapitalize='none' autoCorrect={false}
+                                       onChangeText={value => handleUsernameChange(value)} placeholder={"E-Mail"}/>
+                            </FormControl>
+                            <FormControl>
+                                <FormControl.Label>Passwort</FormControl.Label>
+                                <Input type={show ? "text" : "password"}
+                                       InputRightElement={<Icon name={show ? "visibility-off" : "visibility"} size={15}
+                                                                style={style.visibilityButton}
+                                                                onPress={() => setShow(!show)}/>} value={password}
+                                       onChangeText={value => handlePasswordChange(value)} placeholder="Passwort"/>
+                            </FormControl>
+                            <Button mt="2" colorScheme="primary" onPress={submitForm}>
+                                Anmelden
+                            </Button>
+                        </VStack>
+                    )}
                 </Box>
             </Center>
         </View>
@@ -85,7 +105,7 @@ const style = StyleSheet.create({
         display: "flex",
         justifyContent: "center"
     },
-    visibilityButton:{
+    visibilityButton: {
         marginRight: 10
     }
 });
