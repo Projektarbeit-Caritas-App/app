@@ -3,5 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "module": "esnext"
-  }
+  },
+  "files": [
+    "./node_modules/redux-persist/types/integration/react.d.ts"
+  ]
 }
