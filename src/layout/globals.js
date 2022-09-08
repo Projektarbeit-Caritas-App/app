@@ -20,6 +20,10 @@ export default StyleSheet.create({
         fontSize: 14,
         color: '#89a4a7'
     },
+    textHighlight:{
+        fontSize: 14,
+        color: '#bd583f'
+    },
     spaceTop: {
         marginTop: 10
     },
