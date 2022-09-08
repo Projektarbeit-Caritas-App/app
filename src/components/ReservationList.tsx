@@ -11,6 +11,7 @@ const ReservationList = () => {
     const [shops, setShops] = useState([]);
     const [shopId, setShopId] = useState<any>(null);
     const [reservations, setReservations] = useState([]);
+    const [reservationsLoaded, setReservationsLoaded] = useState(false);
     const userStore = useSelector(({persistantReducer}: any) => persistantReducer);
     const dispatch = useDispatch();
     const state = useSelector(({persistantReducer}: any) => persistantReducer);
@@ -29,11 +30,12 @@ const ReservationList = () => {
             getShops(config, dispatch).then((shops: any) => {
                 setShops(shops);
             })
-        } else if (userStore.shop > 0 && reservations.length === 0) {
+        } else if (userStore.shop > 0 && reservationsLoaded) {
             //Load shops
             getReservationsForShop(userStore.shop, config, dispatch).then((reservations: any) => {
                 console.log(reservations); //todo: Debug entfernen
                 setReservations(reservations);
+                setReservationsLoaded(true);
             })
         }
         console.log('useEffect'); //todo: Debug entfernen

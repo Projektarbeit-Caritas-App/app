@@ -15,7 +15,7 @@ const icons: Array<Image> = [
     {
         name: 'fa-toys',
         image: require('../assets/icons/toy.png'),
-    },
+    }
 ];
 
 export const getIcon = (name: string) => {

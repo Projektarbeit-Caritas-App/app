@@ -17,6 +17,8 @@ const ScanPage = () => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
+    //todo: solve 429 too many requests on schedule
+
     useEffect(() => {
         (async () => {
             const {status} = await BarCodeScanner.requestPermissionsAsync();
