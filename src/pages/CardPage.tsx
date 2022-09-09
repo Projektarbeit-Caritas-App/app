@@ -126,7 +126,7 @@ const CardPage = (props: any) => {
         return (
             <View style={style.item}>
                 <View style={style.inline}>
-                    <Text style={[style.actionsText, style.typeText]}>{data.product_type.name}</Text>
+                    <Text style={[style.actionsText, style.typeText]}>{data.product_type.name} ({data.product_type.icon})</Text>
                     <View style={style.actions}>
                         <Pressable style={decreasable ? style.actionsButton : style.actionsButtonDisabled}
                                    onPress={() => removeOrder(index, data, section)}><Text

@@ -2,6 +2,11 @@ import axios from "axios";
 import {AnyAction} from "redux";
 import {Dispatch} from "react";
 import {dispatchClearUserData, dispatchSetUserData} from "./dispatcher";
+import {
+    getModel,
+    getSystemName,
+    getSystemVersion, getManufacturerSync
+} from 'react-native-device-info';
 
 const BASE_URL = "https://caritas.wolfshoehle.eu/"
 
@@ -61,7 +66,7 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
             data: {
                 email: email,
                 password: password,
-                device_name: 'mobile'
+                device_name: getManufacturerSync() + ' ' + getModel() + ' (' + getSystemName() + ' ' + getSystemVersion() + ')'
             }
         }).then((response) => {
             dispatchSetUserData(dispatch, response.data.user, response.data.token);
@@ -91,7 +96,7 @@ export const orderLineItems = (cardID: number, data: object, config: object, dis
 
 export const setCardComment = (cardID: number, comment: string, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
-        axios.post(POST_CARD + cardID, {comment: comment}, config).then((response) => {
+        axios.post(POST_CARD + cardID + '/comment', {comment: comment}, config).then((response) => {
             resolve(true);
         }).catch(r => {
             if (r.response.status === 401) {
