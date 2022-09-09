@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Keyboard, StyleSheet, TouchableWithoutFeedback} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {
     Box,
     Button,
@@ -7,7 +7,7 @@ import {
     Input,
     VStack, FormControl, Heading, Image, Pressable, View, KeyboardAvoidingView, Text, Alert, Spinner, HStack
 } from "native-base";
-import {loginUser} from "../redux/data/api";
+import {loginUser, passwordReset} from "../redux/data/api";
 import {useDispatch} from "react-redux";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
@@ -33,6 +33,19 @@ const LoginPage = () => {
         loginUser(username, password, dispatch).then((res: any) => {
             if (res !== true) {
                 setError({type: 'error', msg: res})
+            }
+            setPageLoading(false);
+        }).catch(err => {
+            setError({type: 'warning', msg: err})
+            setPageLoading(false);
+        })
+    }
+
+    const resetPassword = () => {
+        setPageLoading(true);
+        passwordReset(username, dispatch).then((res: any) => {
+            if (res !== true) {
+                setError({type: 'success', msg: 'Falls Sie eine korrekte E-Mail Adresse eingegeben haben, sollten Sie in den nächsten Minuten eine E-Mail erhalten.'})
             }
             setPageLoading(false);
         }).catch(err => {
@@ -84,6 +97,9 @@ const LoginPage = () => {
                             <Button mt="2" colorScheme="primary" onPress={submitForm}>
                                 Anmelden
                             </Button>
+                            <Pressable onPress={resetPassword}>
+                                <Text style={style.forgotPw}>Passwort vergessen?</Text>
+                            </Pressable>
                         </VStack>
                     )}
                 </Box>
@@ -107,6 +123,9 @@ const style = StyleSheet.create({
     },
     visibilityButton: {
         marginRight: 10
+    },
+    forgotPw:{
+        color: "rgb(0, 116, 204)"
     }
 });
 

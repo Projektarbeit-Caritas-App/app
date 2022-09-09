@@ -131,7 +131,7 @@ const CardPage = (props: any) => {
                         <Pressable style={decreasable ? style.actionsButton : style.actionsButtonDisabled}
                                    onPress={() => removeOrder(index, data, section)}><Text
                             style={decreasable ? [style.lineItemText, style.actionsText] : [style.actionsText, style.actionTextDisabled]}>-</Text></Pressable>
-                        <Text style={style.actionsText}><RepetetiveImage src={data.product_type.icon}
+                        <Text style={style.actionsText}><RepetetiveImage icon={data.product_type.icon}
                                                                          name={data.product_type.name} data={data}
                                                                          section={section}
                                                                          cartitem={cartItem}></RepetetiveImage></Text>
@@ -203,6 +203,7 @@ const CardPage = (props: any) => {
                 <View style={style.container}>
                     <SafeAreaView>
                         <SectionList
+                            contentContainerStyle={style.sectionContent}
                             sections={persons}
                             keyExtractor={(item, index) => item + index}
                             renderItem={({item, index, section}) => <Item data={item} index={index} section={section}/>}
@@ -275,6 +276,8 @@ const style = StyleSheet.create({
     },
     mt: {
         marginTop: 25
+    },
+    sectionContent:{
     }
 });
 

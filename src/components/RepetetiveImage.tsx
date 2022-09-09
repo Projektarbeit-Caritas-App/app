@@ -1,11 +1,12 @@
 import {getIcon} from "../services/image";
 import {Image} from "native-base";
 import React from "react";
-import {StyleSheet, Text} from "react-native";
+import {Text} from "native-base";
+import {StyleSheet} from "react-native";
 
 const RepetetiveImage = (props: any) => {
     const cartItem = props.cartitem;
-    const iconSource = getIcon(props.src);
+    const iconSource = getIcon(props.icon);
     let keyForLimitless = 0;
 
     const getKeyForLimitless = () =>
@@ -15,7 +16,12 @@ const RepetetiveImage = (props: any) => {
 
     const renderImages = () => {
         let icons = [];
-        for (let i = 1; i <= props.data.limit; i++) {
+
+        //todo remove workarount
+        let limit = props.data.limit;
+        if(limit === 999) limit = null;
+
+        for (let i = 1; i <= limit; i++) {
             if (i <= props.data.used) {
                 icons.push(<Image key={i} source={iconSource} alt={props.name}
                                   style={[style.icon, style.iconUsed]} resizeMode="contain"></Image>);
@@ -27,9 +33,9 @@ const RepetetiveImage = (props: any) => {
                                   resizeMode="contain"></Image>)
             }
         }
-        if(props.data.limit === null)
+        if(limit === null)
         {
-            icons.push(<Text key={getKeyForLimitless()}>{props.data.used}{cartItem !== undefined? (<Text> / {cartItem.amount}</Text>):null}</Text>)
+            icons.push(<Text key={getKeyForLimitless()}><Text style={style.used}>{props.data.used}</Text>{cartItem !== undefined? ( <Text style={style.new}>+{cartItem.amount}</Text>):null}</Text>)
         }
         return icons;
     };
@@ -50,7 +56,14 @@ const style = StyleSheet.create({
         tintColor: '#ddd'
     },
     iconNew: {
-        tintColor: '#2ECC40'
+        tintColor: 'rgb(25, 135, 84)'
+    },
+    used: {
+        color: '#ddd'
+    },
+    new: {
+        marginLeft: 10,
+        color: 'rgb(25, 135, 84)'
     }
 });
 

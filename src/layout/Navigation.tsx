@@ -94,7 +94,7 @@ const style = StyleSheet.create({
         zIndex: 2,
         backgroundColor: '#cc1e1c',
         color: '#fff',
-        borderRadius: '50%',
+        borderRadius: 7.5,
         width: 15,
         height: 15,
         paddingHorizontal: 4,

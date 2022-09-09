@@ -9,7 +9,7 @@ import {useNavigation} from "@react-navigation/native";
 
 const ReservationList = () => {
     const [shops, setShops] = useState([]);
-    const [shopId, setShopId] = useState<any>(null);
+    const [shopId, setShopId] = useState<any>('');
     const [reservations, setReservations] = useState([]);
     const [reservationsLoaded, setReservationsLoaded] = useState(false);
     const userStore = useSelector(({persistantReducer}: any) => persistantReducer);
@@ -17,7 +17,7 @@ const ReservationList = () => {
     const state = useSelector(({persistantReducer}: any) => persistantReducer);
     const navigation = useNavigation();
 
-    const changeShopId = () => {
+    const setShopInStore = () => {
         dispatchSetShop(dispatch, shopId);
     }
 
@@ -71,15 +71,15 @@ const ReservationList = () => {
             <Center>
                 {userStore.shop === null ? (
                     <Box w="100%">
-                        <Select selectedValue={shopId} minWidth="200" accessibilityLabel="Choose Service"
+                        <Select selectedValue={shopId} minWidth="200" accessibilityLabel="Laden wählen"
                                 placeholder="Laden wählen" _selectedItem={{
                             bg: "teal.600",
                             endIcon: <CheckIcon size="5"/>
                         }} mt={1} onValueChange={itemValue => setShopId(itemValue)}>
-                            {shops.map((singleShop: any) => <Select.Item label={singleShop.city} value={singleShop.id}
+                            {shops.map((singleShop: any) => <Select.Item label={singleShop.city} value={singleShop.id.toString()}
                                                                          key={singleShop.id}/>)}
                         </Select>
-                        <Button onPress={() => (changeShopId())} style={style.mtsmall}>Laden speichern</Button>
+                        <Button onPress={() => (setShopInStore())} style={style.mtsmall}>Laden speichern</Button>
                     </Box>
                 ) : (
                     <Box w="100%">

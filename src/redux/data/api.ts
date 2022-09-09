@@ -2,11 +2,8 @@ import axios from "axios";
 import {AnyAction} from "redux";
 import {Dispatch} from "react";
 import {dispatchClearUserData, dispatchSetUserData} from "./dispatcher";
-import {
-    getModel,
-    getSystemName,
-    getSystemVersion, getManufacturerSync
-} from 'react-native-device-info';
+import * as Device from 'expo-device';
+import {deviceName} from "expo-device";
 
 const BASE_URL = "https://caritas.wolfshoehle.eu/"
 
@@ -14,6 +11,7 @@ const POST_LOGIN = BASE_URL + 'api/auth/token';
 const GET_CARD = BASE_URL + 'api/card/visit/';
 const POST_CARD = BASE_URL + 'api/card/visit/';
 const GET_SCHEDULE = BASE_URL + 'api/schedule/';
+const PASSWORD_RESET = BASE_URL + 'api/password/forgot';
 
 export const getCardByID = (id: number, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
@@ -66,7 +64,7 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
             data: {
                 email: email,
                 password: password,
-                device_name: getManufacturerSync() + ' ' + getModel() + ' (' + getSystemName() + ' ' + getSystemVersion() + ')'
+                device_name: Device.manufacturer + ' ' + Device.modelName + ' (' + Device.osName + ' ' + Device.osBuildId + ')'
             }
         }).then((response) => {
             dispatchSetUserData(dispatch, response.data.user, response.data.token);
@@ -77,6 +75,25 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
             } else {
                 reject('Unbekannter Fehler (' + err.response.status + '). Bitte versuchen Sie es erneut oder melden Sie dies einem Administrator.')
             }
+        });
+    })
+}
+
+export const passwordReset = (email: string, dispatch: Dispatch<AnyAction>) => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+
+        axios({
+            method: 'post',
+            responseType: 'json',
+            url: PASSWORD_RESET,
+            data: {
+                email: email
+            }
+        }).then((response) => {
+            resolve(true);
+        }).catch(err => {
+            reject('Unbekannter Fehler (' + err.response.status + '). Bitte versuchen Sie es erneut oder melden Sie dies einem Administrator.')
         });
     })
 }

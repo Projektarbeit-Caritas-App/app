@@ -12,7 +12,7 @@ const ScanPage = () => {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
     const tempID = '50080528753334'; //todo: Remove debug
-    const [cardId, setCardId] = useState('');
+    const [cardId, setCardId] = useState('50080528753334');
     const state = useSelector(({persistantReducer}) => persistantReducer);
     const navigation = useNavigation();
     const dispatch = useDispatch();
