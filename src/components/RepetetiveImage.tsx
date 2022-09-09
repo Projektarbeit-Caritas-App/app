@@ -43,13 +43,14 @@ const RepetetiveImage = (props: any) => {
 const style = StyleSheet.create({
     icon: {
         width: 20,
-        height: 20
+        height: 20,
+        marginRight: 7
     },
     iconUsed: {
-        tintColor: 'gray'
+        tintColor: '#ddd'
     },
     iconNew: {
-        tintColor: 'green'
+        tintColor: '#2ECC40'
     }
 });
 
