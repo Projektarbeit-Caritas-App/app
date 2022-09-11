@@ -6,7 +6,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {Card} from "../redux/data/models";
 import {format} from 'date-fns'
 
-const Comment = ({card}: { card: Card }) => {
+const CardBox = ({card}: { card: Card }) => {
     const dispatch = useDispatch();
     const [comment, setComment] = useState<string>(card.comment);
     const [commentChanged, setCommentChanged] = useState(false);
@@ -56,9 +56,9 @@ const Comment = ({card}: { card: Card }) => {
                 <Stack space={2}>
                     <Heading size="md" ml="-1">{card.last_name}, {card.first_name}</Heading>
                     <Text fontSize="xs" _light={{
-                        color: "violet.500"
+                        color: "#cc1e1c"
                     }} _dark={{
-                        color: "violet.400"
+                        color: "#cc1e1c"
                     }} fontWeight="500" ml="-0.5" mt="-1">Nr: {card.id}</Text>
                 </Stack>
                 {card.street ? (
@@ -114,4 +114,4 @@ const style = StyleSheet.create({
     }
 });
 
-export default React.memo(Comment);
+export default React.memo(CardBox);

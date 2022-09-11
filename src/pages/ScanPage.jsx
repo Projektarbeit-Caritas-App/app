@@ -11,12 +11,12 @@ import {
     View
 } from 'react-native';
 import {Alert, Box, Center, KeyboardAvoidingView, VStack} from "native-base";
-import {BarCodeScanner} from 'expo-barcode-scanner';
 import Icon from "react-native-vector-icons/FontAwesome";
 import {getCardByID} from "../redux/data/api";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigation} from "@react-navigation/native";
 import ReservationList from "../components/ReservationList";
+import {Camera} from "expo-camera";
 
 const ScanPage = () => {
     const [hasPermission, setHasPermission] = useState(null);
@@ -31,7 +31,7 @@ const ScanPage = () => {
 
     useEffect(() => {
         (async () => {
-            const {status} = await BarCodeScanner.requestPermissionsAsync();
+            const {status} = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
     }, [hasPermission, scanned]);
@@ -61,8 +61,7 @@ const ScanPage = () => {
         }
     }
 
-    const handleBarCodeScanned = ({data}) => {
-        console.log('SCANNED'); //todo: Debug entfernen
+    const handleBarCodeScanned = (data) => {
         setScanned(true);
         setCardId(data);
     };
@@ -88,9 +87,15 @@ const ScanPage = () => {
                                 ) : (
                                     <VStack space={3} mt="1" w="100%">
                                         <View style={style.codeScanner}>
-                                            <BarCodeScanner
-                                                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                                                style={StyleSheet.absoluteFillObject}
+                                            <Camera
+                                                onBarCodeScanned={(...args) => {
+                                                    const data = args[0].data;
+                                                    handleBarCodeScanned(data);
+                                                }}
+                                                barCodeScannerSettings={{
+                                                    barCodeTypes: ['qr'],
+                                                }}
+                                                style={{ flex: 1 }}
                                             />
                                             {scanned &&
                                                 <Button title="Nochmal scannen" onPress={() => setScanned(false)}></Button>}

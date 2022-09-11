@@ -12,7 +12,6 @@ import {useDispatch} from "react-redux";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 const LoginPage = () => {
-    console.log('login'); //todo: Debug entfernen
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [show, setShow] = React.useState(false);

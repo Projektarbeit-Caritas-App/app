@@ -10,7 +10,6 @@ import {Link, useNavigation} from "@react-navigation/native";
 import {dispatchClearUserData} from "../redux/data/dispatcher";
 
 const SettingsPage = () => {
-    console.log('setting'); //todo: Debug entfernen
     const dispatch = useDispatch();
     const navigation = useNavigation();
 

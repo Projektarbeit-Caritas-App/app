@@ -4,8 +4,8 @@ import React, {useState} from "react";
 import {LimitationState, Person} from "../redux/data/models";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Item from "../components/Item";
-import Comment from "../components/Comment";
 import ShoppingCartButton from "../components/ShoppingCartButton";
+import CardBox from "../components/CardBox";
 
 const CardPage = (props: any) => {
     const card = props.route.params.data.card;
@@ -43,7 +43,7 @@ const CardPage = (props: any) => {
             <Box alignItems="center" mx={4}>
                 <View style={style.container}>
                     <SafeAreaView>
-                        <Comment card={card}/>
+                        <CardBox card={card}/>
                         <View style={[style.mb]}>
                             {persons.map((person: Person, personIndex: number) => {
                                 return (

@@ -16,7 +16,6 @@ const ReservationList = () => {
     const dispatch = useDispatch();
     const state = useSelector(({persistantReducer}: any) => persistantReducer);
     const navigation = useNavigation();
-    console.log(reservations); //todo: Debug entfernen
     const config = {
         headers: {Authorization: `Bearer ${userStore.token}`}
     };
@@ -34,7 +33,6 @@ const ReservationList = () => {
         } else if (userStore.shop > 0 && !reservationsLoaded) {
             //Load shops
             getReservationsForShop(userStore.shop, config, dispatch).then((reservations: any) => {
-                console.log(reservations); //todo: Debug entfernen
                 setReservations(reservations);
                 setReservationsLoaded(true);
             })
@@ -92,8 +90,8 @@ const ReservationList = () => {
                             <Text>Keine Reservierungen vorhanden.</Text>
                         ) : (
                             <View>
-                                {reservations.map((item) => {
-                                    return <Reservation item={item}/>
+                                {reservations.map((item, index) => {
+                                    return <Reservation item={item} key={index}/>
                                 })}
                             </View>
                         )}

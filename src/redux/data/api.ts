@@ -122,7 +122,6 @@ export const setCardComment = (cardID: number, comment: string, config: object, 
 export const getShops = (config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.get(GET_SCHEDULE, config).then((response) => {
-            console.log(response); //todo: Debug entfernen
             resolve(response.data);
         }).catch(r => {
             if (r.response.status === 401) {
