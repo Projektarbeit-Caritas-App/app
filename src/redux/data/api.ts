@@ -1,9 +1,9 @@
 import axios from "axios";
 import {AnyAction} from "redux";
 import {Dispatch} from "react";
-import {dispatchClearUserData, dispatchSetUserData} from "./dispatcher";
+import {dispatchClearCartView, dispatchClearLineItems, dispatchClearUserData, dispatchSetUserData} from "./dispatcher";
 import * as Device from 'expo-device';
-import {deviceName} from "expo-device";
+import {deviceName, osBuildId} from "expo-device";
 
 const BASE_URL = "https://caritas.wolfshoehle.eu/"
 
@@ -16,15 +16,9 @@ const PASSWORD_RESET = BASE_URL + 'api/password/forgot';
 export const getCardByID = (id: number, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.get(GET_CARD + id, config).then((response) => {
-
-            console.log('response'); //todo: Debug entfernen
-            console.log(response); //todo: Debug entfernen
             resolve(prepareDataForCard(response));
         }).catch(r => {
-            console.log('reject'); //todo: Debug entfernen
-            console.log(r); //todo: Debug entfernen
             if (r.response.status === 401) {
-                console.log('dispatchClearUserData'); //todo: Debug entfernen
                 dispatchClearUserData(dispatch);
                 resolve('Unauthorized');
             } else reject();
@@ -56,7 +50,6 @@ const prepareDataForCard = (res: any) => {
 export const loginUser = (email: string, password: string, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-
         axios({
             method: 'post',
             responseType: 'json',
@@ -64,7 +57,7 @@ export const loginUser = (email: string, password: string, dispatch: Dispatch<An
             data: {
                 email: email,
                 password: password,
-                device_name: Device.manufacturer + ' ' + Device.modelName + ' (' + Device.osName + ' ' + Device.osBuildId + ')'
+                device_name: Device.manufacturer + ' ' + Device.modelName + ' (' + Device.osBuildId + ')'
             }
         }).then((response) => {
             dispatchSetUserData(dispatch, response.data.user, response.data.token);
@@ -101,6 +94,8 @@ export const passwordReset = (email: string, dispatch: Dispatch<AnyAction>) => {
 export const orderLineItems = (cardID: number, data: object, config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.post(POST_CARD + cardID, data, config).then((response) => {
+            dispatchClearLineItems(dispatch);
+            dispatchClearCartView(dispatch);
             resolve(true);
         }).catch(r => {
             if (r.response.status === 401) {
@@ -127,6 +122,7 @@ export const setCardComment = (cardID: number, comment: string, config: object, 
 export const getShops = (config: object, dispatch: Dispatch<AnyAction>) => {
     return new Promise((resolve, reject) => {
         axios.get(GET_SCHEDULE, config).then((response) => {
+            console.log(response); //todo: Debug entfernen
             resolve(response.data);
         }).catch(r => {
             if (r.response.status === 401) {

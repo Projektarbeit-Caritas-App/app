@@ -6,8 +6,6 @@ export default function userReducer(userState, action) {
             user: null
         };
     }
-    console.log('userState'); //todo: Debug entfernen
-    console.log(userState); //todo: Debug entfernen
     switch (action.type) {
         case "SET_USER_DATA": {
             return {

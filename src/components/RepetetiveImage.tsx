@@ -1,12 +1,12 @@
 import {getIcon} from "../services/image";
 import {Image} from "native-base";
-import React from "react";
+import React, {useState} from "react";
 import {Text} from "native-base";
-import {StyleSheet} from "react-native";
+import {StyleSheet, View} from "react-native";
 
 const RepetetiveImage = (props: any) => {
     const cartItem = props.cartitem;
-    const iconSource = getIcon(props.icon);
+    let iconSource = getIcon(props.icon);
     let keyForLimitless = 0;
 
     const getKeyForLimitless = () =>
@@ -17,20 +17,21 @@ const RepetetiveImage = (props: any) => {
     const renderImages = () => {
         let icons = [];
 
-        //todo remove workarount
         let limit = props.data.limit;
-        if(limit === 999) limit = null;
-
         for (let i = 1; i <= limit; i++) {
             if (i <= props.data.used) {
-                icons.push(<Image key={i} source={iconSource} alt={props.name}
-                                  style={[style.icon, style.iconUsed]} resizeMode="contain"></Image>);
+                icons.push(<View key={i}>
+                    <Image key={i} source={iconSource} alt={props.name}
+                                  style={[style.icon, style.iconUsed]} resizeMode="contain"></Image>
+                </View>);
             } else if (cartItem !== undefined && i <= cartItem.amount + props.data.used) {
-                icons.push(<Image key={i} source={iconSource} alt={props.name} style={[style.icon, style.iconNew]}
-                                  resizeMode="contain"></Image>);
+                icons.push(<View key={i}>
+                    <Image key={i} source={iconSource} alt={props.name} style={[style.icon, style.iconNew]}
+                           resizeMode="contain"></Image>
+                </View>);
             } else {
-                icons.push(<Image key={i} source={iconSource} alt={props.name} style={style.icon}
-                                  resizeMode="contain"></Image>)
+                icons.push(<View key={i}><Image key={i} source={iconSource} alt={props.name} style={style.icon}
+                                                resizeMode="contain"></Image></View>)
             }
         }
         if(limit === null)
@@ -50,21 +51,21 @@ const style = StyleSheet.create({
     icon: {
         width: 20,
         height: 20,
-        marginRight: 7
+        marginHorizontal: 2,
     },
     iconUsed: {
         tintColor: '#ddd'
     },
     iconNew: {
-        tintColor: 'rgb(25, 135, 84)'
+        tintColor: '#198754FF'
     },
     used: {
         color: '#ddd'
     },
     new: {
         marginLeft: 10,
-        color: 'rgb(25, 135, 84)'
+        color: '#198754FF'
     }
 });
 
-export default RepetetiveImage;
+export default React.memo(RepetetiveImage);

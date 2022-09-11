@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Keyboard, Pressable, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View} from 'react-native';
+import {
+    Button,
+    Keyboard,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableWithoutFeedback,
+    View
+} from 'react-native';
 import {Alert, Box, Center, KeyboardAvoidingView, VStack} from "native-base";
 import {BarCodeScanner} from 'expo-barcode-scanner';
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -12,7 +22,7 @@ const ScanPage = () => {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
     const tempID = '50080528753334'; //todo: Remove debug
-    const [cardId, setCardId] = useState('50080528753334');
+    const [cardId, setCardId] = useState('');
     const state = useSelector(({persistantReducer}) => persistantReducer);
     const navigation = useNavigation();
     const dispatch = useDispatch();
@@ -52,6 +62,7 @@ const ScanPage = () => {
     }
 
     const handleBarCodeScanned = ({data}) => {
+        console.log('SCANNED'); //todo: Debug entfernen
         setScanned(true);
         setCardId(data);
     };
@@ -62,44 +73,46 @@ const ScanPage = () => {
 
     return (
         <KeyboardAvoidingView behavior="padding" style={style.container}>
-            <View style={{justifyContent: 'flex-start', flex: 1, backgroundColor: '#fff'}}>
-                <Center w="100%">
-                    <Box safeArea px="2" py={0} w="90%" maxW="500">
-                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                            {(hasPermission === false) ? (
-                                <VStack space={3} mt={3}>
-                                    <Alert w="100%" colorScheme={'warning'} status={'warning'}>
-                                        <Text>Kein Zugriff auf die Kamera. Bitte erlauben Sie diesen in den
-                                            Systemeinstellungen um Zugriff auf den QR-Code Scanner zu erhalten.</Text>
-                                    </Alert>
-                                </VStack>
-                            ) : (
-                                <VStack space={3} mt="1">
-                                    <View style={style.codeScanner}>
-                                        <BarCodeScanner
-                                            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                                            style={StyleSheet.absoluteFillObject}
-                                        />
-                                        {scanned &&
-                                            <Button title="Nochmal scannen" onPress={() => setScanned(false)}></Button>}
-                                    </View>
-                                </VStack>
-                            )}
-                        </TouchableWithoutFeedback>
-                        <VStack space={3} mt={1}>
-                            <View style={style.innerInput}>
-                                <TextInput placeholder={"Nummer eingeben..."} value={cardId}
-                                           onChange={handleUserIdChange} style={style.innerInputInput}/>
-                                <Pressable colorScheme="primary" style={style.innerInputIcon}
-                                           onPress={handleQrEntered}>
-                                    <Icon name={"search"} style={style.icon}/>
-                                </Pressable>
-                            </View>
-                        </VStack>
-                    </Box>
-                    <ReservationList/>
-                </Center>
-            </View>
+            <ScrollView>
+                <View style={{justifyContent: 'flex-start', flex: 1, backgroundColor: '#fff'}}>
+                    <Center w="100%">
+                        <Box safeArea px="2" py={0} w="90%" maxW="500">
+                            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                                {(hasPermission === false) ? (
+                                    <VStack space={3} mt={3}>
+                                        <Alert w="100%" colorScheme={'warning'} status={'warning'}>
+                                            <Text>Kein Zugriff auf die Kamera. Bitte erlauben Sie diesen in den
+                                                Systemeinstellungen um Zugriff auf den QR-Code Scanner zu erhalten.</Text>
+                                        </Alert>
+                                    </VStack>
+                                ) : (
+                                    <VStack space={3} mt="1" w="100%">
+                                        <View style={style.codeScanner}>
+                                            <BarCodeScanner
+                                                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                                                style={StyleSheet.absoluteFillObject}
+                                            />
+                                            {scanned &&
+                                                <Button title="Nochmal scannen" onPress={() => setScanned(false)}></Button>}
+                                        </View>
+                                    </VStack>
+                                )}
+                            </TouchableWithoutFeedback>
+                            <VStack space={3} mt={1}>
+                                <View style={style.innerInput}>
+                                    <TextInput placeholder={"Nummer eingeben..."} value={cardId}
+                                               onChange={handleUserIdChange} style={style.innerInputInput}/>
+                                    <Pressable colorScheme="primary" style={style.innerInputIcon}
+                                               onPress={handleQrEntered}>
+                                        <Icon name={"search"} style={style.icon}/>
+                                    </Pressable>
+                                </View>
+                            </VStack>
+                        </Box>
+                        <ReservationList/>
+                    </Center>
+                </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }

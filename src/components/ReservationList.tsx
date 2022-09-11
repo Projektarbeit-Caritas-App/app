@@ -16,21 +16,22 @@ const ReservationList = () => {
     const dispatch = useDispatch();
     const state = useSelector(({persistantReducer}: any) => persistantReducer);
     const navigation = useNavigation();
+    console.log(reservations); //todo: Debug entfernen
+    const config = {
+        headers: {Authorization: `Bearer ${userStore.token}`}
+    };
 
     const setShopInStore = () => {
         dispatchSetShop(dispatch, shopId);
     }
 
     useEffect(() => {
-        const config = {
-            headers: {Authorization: `Bearer ${userStore.token}`}
-        };
         if (userStore.shop === null && shops.length === 0) {
             //Load shops
             getShops(config, dispatch).then((shops: any) => {
                 setShops(shops);
             })
-        } else if (userStore.shop > 0 && reservationsLoaded) {
+        } else if (userStore.shop > 0 && !reservationsLoaded) {
             //Load shops
             getReservationsForShop(userStore.shop, config, dispatch).then((reservations: any) => {
                 console.log(reservations); //todo: Debug entfernen
@@ -38,8 +39,7 @@ const ReservationList = () => {
                 setReservationsLoaded(true);
             })
         }
-        console.log('useEffect'); //todo: Debug entfernen
-    })
+    }, [shops, reservationsLoaded])
 
     const handleQrEntered = (cardId: string) => {
         const config = {
@@ -48,6 +48,7 @@ const ReservationList = () => {
 
         getCardByID(parseInt(cardId), config, dispatch).then((res: any) => {
             if (res.persons !== undefined) {
+                // @ts-ignore
                 navigation.navigate('CardPage', {data: res})
             }
         }).catch(() => {
@@ -56,12 +57,14 @@ const ReservationList = () => {
     }
 
     //{name} ({Ort}, {Straße})
-    const renderItem = ({item}) => (
-        <View style={style.item}>
+    // @ts-ignore
+    const Reservation = ({item}) => (
+        <View style={[style.item, style.mtsmall]}>
             <Pressable onPress={() => handleQrEntered(item.card_id)}>
-                <Text style={style.itemText}><Text
-                    style={style.itemStrong}>{format(new Date(item.time), 'HH:mm')} Uhr:</Text> {item.card.last_name}, {item.card.first_name} {item.card_id}
-                </Text>
+                <View style={[style.spaceBetween]}>
+                    <Text style={style.itemStrong}>{format(new Date(item.time), 'HH:mm')} Uhr</Text>
+                    <Text>{item.card.last_name}, {item.card.first_name}</Text>
+                </View>
             </Pressable>
         </View>
     );
@@ -76,7 +79,8 @@ const ReservationList = () => {
                             bg: "teal.600",
                             endIcon: <CheckIcon size="5"/>
                         }} mt={1} onValueChange={itemValue => setShopId(itemValue)}>
-                            {shops.map((singleShop: any) => <Select.Item label={singleShop.city} value={singleShop.id.toString()}
+                            {shops.map((singleShop: any) => <Select.Item label={singleShop.city}
+                                                                         value={singleShop.id.toString()}
                                                                          key={singleShop.id}/>)}
                         </Select>
                         <Button onPress={() => (setShopInStore())} style={style.mtsmall}>Laden speichern</Button>
@@ -87,13 +91,11 @@ const ReservationList = () => {
                         {reservations.length === 0 ? (
                             <Text>Keine Reservierungen vorhanden.</Text>
                         ) : (
-                            <SafeAreaView>
-                                <FlatList
-                                    data={reservations}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item: any) => item.id}
-                                />
-                            </SafeAreaView>
+                            <View>
+                                {reservations.map((item) => {
+                                    return <Reservation item={item}/>
+                                })}
+                            </View>
                         )}
                     </Box>
                 )}
@@ -103,8 +105,8 @@ const ReservationList = () => {
 }
 
 const style = StyleSheet.create({
-    reservationList:{
-      padding: 5
+    reservationList: {
+        padding: 5
     },
     mtsmall: {
         marginTop: 5
@@ -113,8 +115,8 @@ const style = StyleSheet.create({
         marginTop: 25
     },
     item: {
-        padding: 5,
-        backgroundColor: '#fff3f3',
+        padding: 15,
+        backgroundColor: '#f4f4f4',
         borderRadius: 5,
         marginBottom: 2
     },
@@ -123,6 +125,11 @@ const style = StyleSheet.create({
     },
     itemText: {
         fontSize: 16
+    },
+    spaceBetween: {
+        width: "100%",
+        flexDirection: 'row',
+        justifyContent: "space-between"
     }
 });
 

@@ -19,7 +19,6 @@ const Navigation = () => {
     const navigation = useNavigation();
     const persistantReducer = useSelector(({persistantReducer}: any) => persistantReducer);
     const nonPersistantReducer = useSelector(({nonPersistantReducer}: any) => nonPersistantReducer);
-    console.log(persistantReducer, nonPersistantReducer); //todo: Debug entfernen
     const getCartItemAmount =  (lineItems: LineItem[] | []) =>{
         let amount = 0;
         lineItems.forEach((lineItem) => {
@@ -97,8 +96,9 @@ const style = StyleSheet.create({
         borderRadius: 7.5,
         width: 15,
         height: 15,
-        paddingHorizontal: 4,
-        fontSize: 10
+        textAlign: 'center',
+        fontSize: 10,
+        lineHeight: 15
     }
 })
 

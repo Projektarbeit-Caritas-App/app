@@ -12,6 +12,7 @@ import {useDispatch} from "react-redux";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 const LoginPage = () => {
+    console.log('login'); //todo: Debug entfernen
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [show, setShow] = React.useState(false);
@@ -58,7 +59,7 @@ const LoginPage = () => {
         <View style={{justifyContent: 'center', flex: 1, backgroundColor: '#fff'}}>
             <Center w="100%" style={style.centerBox}>
                 <Box safeArea p="2" py="8" w="90%" maxW="500">
-                    <Image source={require('../assets/caritas.gif')} alt={'Logo'} style={style.image}
+                    <Image source={require('../assets/logo.png')} alt={'Logo'} style={style.image}
                            resizeMode="contain"></Image>
 
                     <Center>
