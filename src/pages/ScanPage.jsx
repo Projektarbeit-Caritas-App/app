@@ -66,8 +66,8 @@ const ScanPage = () => {
         setCardId(data);
     };
 
-    const handleUserIdChange = (e) => {
-        setCardId(e.target.value);
+    const handleCardIdChange = (cardId) => {
+        setCardId(cardId);
     }
 
     return (
@@ -106,7 +106,7 @@ const ScanPage = () => {
                             <VStack space={3} mt={1}>
                                 <View style={style.innerInput}>
                                     <TextInput placeholder={"Nummer eingeben..."} value={cardId}
-                                               onChange={handleUserIdChange} style={style.innerInputInput}/>
+                                               onChangeText={text => handleCardIdChange(text)} style={style.innerInputInput}/>
                                     <Pressable colorScheme="primary" style={style.innerInputIcon}
                                                onPress={handleQrEntered}>
                                         <Icon name={"search"} style={style.icon}/>
