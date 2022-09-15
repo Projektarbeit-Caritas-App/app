@@ -29,15 +29,20 @@ const ReservationList = () => {
             //Load shops
             getShops(config, dispatch).then((shops: any) => {
                 setShops(shops);
+                console.log('setShops'); //todo: Debug entfernen
+                console.log(shops); //todo: Debug entfernen
             })
         } else if (userStore.shop > 0 && !reservationsLoaded) {
-            //Load shops
+            //Load reservations
+            console.log('loadReservations'); //todo: Debug entfernen
             getReservationsForShop(userStore.shop, config, dispatch).then((reservations: any) => {
+                console.log('shopId'); //todo: Debug entfernen
+                console.log(userStore.shop); //todo: Debug entfernen
                 setReservations(reservations);
                 setReservationsLoaded(true);
             })
         }
-    }, [shops, reservationsLoaded])
+    }, [shops, reservationsLoaded, shopId])
 
     const handleQrEntered = (cardId: string) => {
         const config = {

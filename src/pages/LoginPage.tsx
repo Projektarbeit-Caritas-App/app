@@ -44,8 +44,13 @@ const LoginPage = () => {
     const resetPassword = () => {
         setPageLoading(true);
         passwordReset(username, dispatch).then((res: any) => {
-            if (res !== true) {
+            console.log('res'); //todo: Debug entfernen
+            console.log(res); //todo: Debug entfernen
+            if (res === true) {
                 setError({type: 'success', msg: 'Falls Sie eine korrekte E-Mail Adresse eingegeben haben, sollten Sie in den nächsten Minuten eine E-Mail erhalten.'})
+            }
+            else{
+                setError({type: 'error', msg: 'Beim Zurücksetzen Ihres Passworts ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'})
             }
             setPageLoading(false);
         }).catch(err => {
@@ -57,7 +62,7 @@ const LoginPage = () => {
     return <KeyboardAvoidingView behavior="padding" style={style.container}>
         <View style={{justifyContent: 'center', flex: 1, backgroundColor: '#fff'}}>
             <Center w="100%" style={style.centerBox}>
-                <Box safeArea p="2" py="8" w="90%" maxW="500">
+                <Box safeArea p="2" pb="8" w="90%" maxW="500">
                     <Image source={require('../assets/logo.png')} alt={'Logo'} style={style.image}
                            resizeMode="contain"></Image>
 
@@ -111,7 +116,7 @@ const LoginPage = () => {
 
 const style = StyleSheet.create({
     container: {
-        flex: 1
+        flexGrow: 1
     },
     image: {
         width: '100%',
