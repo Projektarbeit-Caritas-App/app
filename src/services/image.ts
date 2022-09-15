@@ -85,6 +85,10 @@ const icons: Array<Image> = [
         image: require('../assets/icons/glove.png')
     },
     {
+        name: 'skirt',
+        image: require('../assets/icons/skirt.png')
+    },
+    {
         name: 'hat',
         image: require('../assets/icons/hat.png')
     },
