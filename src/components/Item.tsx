@@ -102,7 +102,7 @@ const Item = ({
         <View style={[style.item, entireScreenWidth > 1200 ? style.itemSmall : style.itemBig]}>
             <View style={style.inline}>
                 <Text
-                    style={[style.actionsText, style.typeText]}>{limitation.product_type.name} ({limitation.product_type.icon})</Text>
+                    style={[style.actionsText, style.typeText]}>{limitation.product_type.name}</Text>
                 <View style={style.actions}>
                     <Pressable style={decreasable ? style.actionsButton : style.actionsButtonDisabled}
                                onPress={() => removeOrder(index, limitation, personIndex)}><Text
